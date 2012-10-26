@@ -1,0 +1,8 @@
+accident_covariate	the covariate effect on parameters of hmm models
+custservtraining_doublemonotone	double monotone dependence hypotheses
+hiddenMarkov	hidden Markov models as hmm models 
+kentucky_hmmm_inequality	equality-inequality constraints on parameters of hmm models
+mph_inequality	equality-inequality constraints on parameters of mph models
+polbirth_monotone	monotone dependence hypotheses
+relpol_recursive	recursive logits
+relpolbirth_loglinear	log-linear models

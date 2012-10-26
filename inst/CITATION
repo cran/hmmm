@@ -1,0 +1,21 @@
+citHeader("To cite package 'hmmm' in publications use:")
+     
+     year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+     vers <- paste("R package version", meta$Version)
+     
+     citEntry(entry="Manual",
+              title = "hmmm: Hierachical Multinomial Marginal Models",
+              author = personList(as.person("Roberto Colombi"),
+                                  as.person("Sabrina Giordano"),
+                                  as.person("Manuela Cazzaro"),
+                                  person("R Development Core Team")),
+              year = year,
+              note = vers,
+     
+              textVersion =
+              paste("Roberto Colombi, Sabrina Giordano, Manuela Cazzaro,",
+                    "and the R Development Core Team (",
+                    2012,
+                    "). nlme: hmmm: Hierachical Multinomial Marginal Models. ",
+                    vers, ".", sep=""))
+
