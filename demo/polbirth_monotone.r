@@ -33,7 +33,7 @@ Z<-ZF<-matrix(1,28,1)
 dism<-list(marg=c(1,2),int=list(c(1,2)),types=c("c","l"))
 
 # definition of the model with inequalities, no EQUALITY constraints on the univariate marginal logits
-model<-hmmm.model(marg=marginals,dismarg=list(dism),lev=c(7,4),strata=1,Z=Z,ZF=ZF,X=diag(1,27),names=names)
+model<-hmmm.model(marg=marginals,dismarg=list(dism),lev=c(7,4),names=names)
 
 # estimation of the models
 
@@ -49,14 +49,14 @@ mu <- hmmm.mlfit(y,model,noineq=FALSE)
 # --> model with null continuation-local log-odds ratios
 # sel=c(10:27) --> positions of the zero-constrained interactions
 
-model0<-hmmm.model(marg=marginals,lev=c(7,4),cocacontr=NULL,strata=1,Z=Z,ZF=ZF,sel=c(10:27))
+model0<-hmmm.model(marg=marginals,lev=c(7,4),sel=c(10:27))
 mnull <- hmmm.mlfit(y,model0)
 
 # HYPOTHESES TESTED:
 # NB: testA --> H0=(mnull model) vs H1=(mu model)
 #     testB --> H0=(mu model) vs H1=(msat model)
 
-PP<-hmmm.chibar(nullfit=mnull,disfit=mu,satfit=msat,repli=6000)
+PP<-hmmm.chibar(nullfit=mnull,disfit=mu,satfit=msat)
 
 summary(PP)
 
@@ -79,7 +79,7 @@ Z<-ZF<-matrix(1,28,1)
 dism<-list(marg=c(1,2),int=list(c(1,2)),types=c("g","l"))
 
 # definition of the model with inequalities, no EQUALITY constraints on the univariate marginal logits
-model<-hmmm.model(marg=marginals,dismarg=list(dism),lev=c(7,4),strata=1,Z=Z,ZF=ZF,X=diag(1,27),names=names)
+model<-hmmm.model(marg=marginals,dismarg=list(dism),lev=c(7,4),names=names)
 
 # estimation of the models
 
@@ -95,7 +95,7 @@ ms <- hmmm.mlfit(y,model,noineq=FALSE)
 # --> model with null global-local log-odds ratios
 # sel=c(10:27) --> positions of the zero-constrained interactions
 
-model0<-hmmm.model(marg=marginals,lev=c(7,4),cocacontr=NULL,strata=1,Z=Z,ZF=ZF,sel=c(10:27))
+model0<-hmmm.model(marg=marginals,lev=c(7,4),sel=c(10:27))
 
 mnull <- hmmm.mlfit(y,model0)
 
@@ -103,7 +103,7 @@ mnull <- hmmm.mlfit(y,model0)
 # NB: testA --> H0=(mnull model) vs H1=(ms model)
 #     testB --> H0=(ms model) vs H1=(msat model)
 
-P<-hmmm.chibar(nullfit=mnull,disfit=ms,satfit=msat,repli=6000)
+P<-hmmm.chibar(nullfit=mnull,disfit=ms,satfit=msat)
 
 summary(P)
 

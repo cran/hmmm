@@ -43,10 +43,10 @@ Vector reporting the positions of the interactions constrained to be zero}
 \details{Variables are denoted by integers, the lower the number identifying the variable 
 the faster its category subscript changes in the vectorized contingency table. Suppose that the variables are 1 and 2 
 with categories k_1, k_2, the joint frequencies y = {y_ij}, where i=1,...,k_1, j=1,...,k_2, 
-are arranged in a vector so that the subscript i changes faster than j.   If \code{strata} is greater than one, the
+are arranged in a vector so that the subscript i changes faster than j. If \code{strata} is greater than one, the
 vectorized contingency tables must be entered strata by strata. So that, for example, if the variables are distinguished in 
-response and covariates, the categories of the covariates determine the strata and the data are arranged 
- in such a way that the subscript of the response variable changes faster than the subscripts of covariates. 
+responses and covariates, the categories of the covariates determine the strata and the data are arranged 
+ in such a way that the subscript of the response variable changes faster than the subscript of covariate. The names of the variables in \code{names} must be declared according to the order of the variables.  
 
 The list \code{marg} of the marginal sets of a complete hierarchical marginal parameterization, together with the types of logits for the variables,
 must be  created by the function `marg.list'. See the help of this function for more details.
@@ -59,10 +59,9 @@ has to be declared (see the function `create.XMAT'). If there are only nullity c
 When \code{X}, \code{E} and \code{sel} are left at default level, a saturated model is defined.  
         
 
-For models with inequality constraints on marginal parameters, the input argument \code{dismarg} is declared as a list whose components are of type: 
- \code{list(marg=c(1,2),int=list(c(1),c(1,2)),types=c("g","l" ))}, with elements
+For models with inequality constraints on marginal parameters, the input argument \code{dismarg} is declared as a list whose components are of type: \code{list(marg=c(1,2),int=list(c(1),c(1,2)),} \code{types=c("g","l" ))}, with elements
   \code{marg}: the marginal set, \code{int}: the list of the interaction subject to inequality constraint, and \code{types}: the logit 
-used for every variable ("g"=global, "l"=local ,"c"=continuation, "rc"=reverse continuation, 
+used for every variable ("g"=global, "l"=local, "c"=continuation, "rc"=reverse continuation, 
 "r"=recursive, "b"=baseline, "marg" is assigned  to each variable not belonging 
 to the marginal set).  This list is used to create the link function 
 Cln(Mm) and its derivative for the inequality constraints. 

@@ -14,7 +14,7 @@ m.initial = y, mup = 1, step = 1)
   \item{y}{A vector of frequencies of the contingency table}
   \item{model}{An object created by `hmmm.model'}
   \item{noineq}{If TRUE inequality constraints specified in the model are ignored}
-  \item{maxit}{Maximum number of iteractions}
+  \item{maxit}{Maximum number of iterations}
   \item{norm.diff.conv}{Convergence criterium value on the parameters}
   \item{norm.score.conv}{Convergence criterium value on the constraints}
   \item{y.eps}{Non-negative constant to be  added 
@@ -30,7 +30,7 @@ m.initial = y, mup = 1, step = 1)
 This function calls the procedure `mphineq.fit'  which is a generalization of the procedure
 `mph.fit' by Lang (2004).}
 \value{An object of the class \code{hmmmfit}; an estimate of a marginal model defined by `hmmm.model'.
-  The output can be displayed using `summary' or `print', see the help of these functions.}
+  The output can be displayed using `summary' or `print'.}
 \references{ Bartolucci F, Colombi R, Forcina A (2007) An extended class of marginal link 
 functions for modelling contingency tables by equality
  and inequality constraints. Statistica Sinica, 17, 691-711.

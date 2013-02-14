@@ -1,8 +1,14 @@
 Package: hmmm
-Version: 1.0.0
-Date: 2012-10-26
+Version: 1.0-1
+Date: 2013-02-14
 Title: hierarchical multinomial marginal models
-Author: Roberto Colombi, Sabrina Giordano, Manuela Cazzaro
+Authors@R: c(person(given = "Roberto", family = "Colombi", role =
+        c("aut", "cre"), email = "colombi@unibg.it"), person(given =
+        "Sabrina", family = "Giordano", role = "aut", email =
+        "sabrina.giordano@unical.it"), person(given = "Manuela", family
+        = "Cazzaro", role = "aut", email =
+        "manuela.cazzaro@unimib.it"), person(given = "Joseph B.",
+        family = "Lang", role = "ctb"))
 Maintainer: Colombi Roberto <colombi@unibg.it>
 Description: Functions for specifying and fitting marginal models for
         contingency tables proposed by Bergsma and Rudas (2002) here
@@ -16,6 +22,9 @@ Description: Functions for specifying and fitting marginal models for
         allowed and can be tested.
 Depends: quadprog, MASS
 License: GPL (>= 2)
-Packaged: 2012-11-17 16:24:19 UTC; Sabrina
+Packaged: 2013-02-15 15:01:48 UTC; Sabrina
+Author: Roberto Colombi [aut, cre], Sabrina Giordano [aut], Manuela
+        Cazzaro [aut], Joseph B. Lang [ctb]
+NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2012-11-17 19:41:32
+Date/Publication: 2013-02-15 17:02:42

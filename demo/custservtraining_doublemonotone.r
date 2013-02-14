@@ -11,7 +11,7 @@ library(hmmm)
 # 377 customers, users of a machine tool.
 # (4 categories each, levels of satisfaction regarding 'Customer Service'
 # and 'Training' given by the company that sells the machine tool:
-#  U=unsatisfied, S=satisfied, RS=really satisfied, ES=extremely satisfied).
+# U=unsatisfied, S=satisfied, RS=really satisfied, ES=extremely satisfied).
 
 y <- c(
  9, 10, 22, 25,
@@ -45,7 +45,7 @@ dism<-list(marginal12dis,marginal12bis)
 # are non-redundant constraints
 
 # definition of the model
-model<-hmmm.model(marg=marginals,dismarg=dism,lev=c(4,4),X=diag(1,15))
+model<-hmmm.model(marg=marginals,dismarg=dism,lev=c(4,4))
                                                          
 # estimation of the models
 
@@ -74,12 +74,10 @@ anull<- hmmm.mlfit(y,models0)
 # NB: testA --> H0=(anull model) vs H1=(a model)
 #     testB --> H0=(a model) vs H1=(asat model)
 
-anull$m<-y
 
-P<-hmmm.chibar(nullfit=anull,disfit=a,satfit=asat,repli=6000)
+P<-hmmm.chibar(nullfit=anull,disfit=a,satfit=asat)
 
-summary(P)
-
+print(P)
 
 
 

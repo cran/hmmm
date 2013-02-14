@@ -17,17 +17,16 @@ ncocacontr = NULL, replace = TRUE)
   \item{fnames}{Names of the factors that describe the strata}
   \item{cocacontr}{A list of zero-one matrices to build "r" logits created by the function `recursive'}
   \item{ncocacontr}{Number of contrasts for every factor, if NULL the maximum number is used}
-  \item{replace}{If TRUE (default) a new model object with design matrix X is produced, if FALSE the list of design matrices associated to each element specified in Formula is returned}
+  \item{replace}{If TRUE a new model object with design matrix X is produced, if FALSE the list of design matrices associated to each element specified in Formula is returned}
 }
 \details{When the marginal interactions of a hmm model are defined in terms of
-a linear predictor of covariates Cln(Mm)=Xbeta, the list of model-formulas defines additive effects of covariates on the interactions. 
+a linear predictor of covariates Cln(Mm)=Xbeta, the list of model formulas defines additive effects of covariates on the interactions. 
 In a case with 
 two response variables declared by \code{names<-c("A","B")}
 and two covariates, named C and D by \code{fnames=c("C","D")}, the additive effect of the covariates 
 on marginal logits of A and B and 
 log odds ratios (A.B) of the two responses is specified by the following \code{Formula}:
-\code{Formula<-list(A=~A+C+D+A:C+A:D, B=~B+C+D+B:C+B:D,
-A.B=~A.B+C+D+A.B:C+A.B:D)}. Use "zero" to constrain to zero all the interactions of a given type.
+\code{Formula<-list(A=~A*(C+D), B=~B*(C+D), A.B=~A.B*(C+D))}. Use "zero" to constrain to zero all the interactions of a given type.
 }
 \value{A list of matrices or a hmm model with X as design matrix according to the input argument \code{replace}. The parameters beta in 
 the predictor Cln(Mm)=Xbeta are the effects specified in \code{Formula} and correspond to the columns of X.}
@@ -50,14 +49,14 @@ strata=6, names=names)
 
 # Create X to account for additive effect of Age and Hour on the logits of Type and Time
 # and constant association between Type and Time
-al<-list(Type=~Type+Age+Hour+Type:Age+Type:Hour,
-Time=~Time+Age+Hour+Time:Age+Time:Hour,Type.Time=~Type.Time)
+al<-list(Type=~Type*(Age+Hour),
+Time=~Time*(Age+Hour),Type.Time=~Type.Time)
 # list of matrices (replace=FALSE)
 listmat<-create.XMAT(modelsat,Formula=al,strata=c(3,2),fnames=c("Age","Hour"),replace=FALSE)
 
 # the model obtained by the modified X (replace=TRUE)
 model<-create.XMAT(modelsat,Formula=al,strata=c(3,2),fnames=c("Age","Hour")) 
-fitmodel<-hmmm.mlfit(y,model,y.eps=0.00001,maxit=2000,mup=1,step=1,m.initial=y)
+fitmodel<-hmmm.mlfit(y,model,y.eps=0.00001,maxit=2000)
 print(fitmodel)
 }
 \keyword{models}

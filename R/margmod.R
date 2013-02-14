@@ -1,81 +1,31 @@
 
-block.fct <-  function(...)
-{
-        #  Author: Joseph B. Lang 
-        #          Dept of Stat and Act Sci 
-        #          Univ of Iowa  (6/16/99, last update: 3/30/04)
-        #   
-        #  Direct sum function.  Creates a block diagonal matrix.
-        #   
-        n <- nargs()
-        all.m <- list(...)
-        rows <- 0
-        cols <- 0
-        for(i in 1:n) {
-                rows <- rows + nrow(all.m[[i]])
-                cols <- cols + ncol(all.m[[i]])
-        }
-        m <- matrix(0, rows, cols)
-        r1 <- 1
-        r2 <- 0
-        c1 <- 1
-        c2 <- 0
-        for(i in 1:n) {
-                r2 <- r2 + nrow(all.m[[i]])
-                c2 <- c2 + ncol(all.m[[i]])
-                m[r1:r2, c1:c2] <- all.m[[i]]
-                r1 <- r2 + 1
-                c1 <- c2 + 1
-        }
-        m
+ getnames<-function(dat,st=3,sep=" "){
+#dat=aggregated data frame with frequencies in the last column
+#st length of the string for every category name
+#sep separetor of category names of a cell
+fa<-dim(dat)[2]-1
+a<-substr(dat[[1]],1,st)
+for(i in 2:fa){
+a<-paste(a,substr(dat[[i]],1,st),sep=sep)
+}
+y<-as.matrix(dat[[fa+1]])
+rownames(y)<-a
+y}
 
+
+direct.sum <-  function(...){
+       nmat <- nargs()
+        allmat<- list(...)
+C<-allmat[[1]]
+
+for(i in 2:nmat) {
+B<-allmat[[i]]
+A<-C
+C <- rbind(cbind(A, matrix(0, nrow = nrow(A), ncol = ncol(B))), 
+        cbind(matrix(0, nrow = nrow(B), ncol = ncol(A)), B))}
+    return(C)
 }
 
-
-pop <- function(npop,nlev) {
- # 
- # Creates a population (Z) matrix corresponding 
- # to data entered by strata. It is assumed that all 
- # the strata have  the same number of response levels.
- #
- # Author: Joseph B. Lang
- # Date  : June 5, 2002  (last updated: March 30, 2004)
- # 
- # Input:
- #    npop = number of populations (aka strata)
- #    nlev = number of response levels per stratum
- # Output:
- #    Z = population matrix of dimension (npop*nlev X npop).
- #
-   kronecker(diag(npop),matrix(1,nlev,1))
-  }
-
-
-rmult <- function(N = 1, n, p) 
-{
-#  Author: Joseph B. Lang 
-#          Dept of Stat and Act Sci 
-#          Univ of Iowa  (6/16/99, last update: 3/30/04)
-#      
-#  Create a matrix of multinomial realizations.
-#  There will be N columns, each column contains a realization of 
-#      a multinomial(n,p) random vector.
-#  Note:  Components in p must add up to 1.0. (e.g. p = c(0.2,0.8))
-#
-        K <- length(p)
-        x <- matrix(0, K, N)
-        su <- x[1,  ]
-        sup <- 0
-        for(i in 1:(K - 1)) {
-                x[i, n > su] <- rbinom(length(su[n > su]), 
-                n - su[n >su], p[i]/(1 - sup))
-                x[i, n <= su] <- 0
-                su <- su + x[i,  ]
-                sup <- sup + p[i]
-        }
-        x[K,  ] <- n - su
-        x
-}
 
  #  Author: Roberto Colombi
         #          Dept IGIF
@@ -121,7 +71,7 @@ C[[mi]]<-CM[[1]]
 if(nint>1){
 for(is in 2:nint){
 M[[mi]]<-rbind(M[[mi]],MM[[is]])
-C[[mi]]<-block.fct(C[[mi]],CM[[is]])
+C[[mi]]<-direct.sum(C[[mi]],CM[[is]])
 }
 }
 remove(list=c("MM","CM"))
@@ -132,7 +82,7 @@ CG<-C[[1]]
 if(nmarg>1){
 for(i in 2:nmarg){
 MG<-rbind(MG,M[[i]])
-CG<-block.fct(CG,C[[i]])
+CG<-direct.sum(CG,C[[i]])
 }
 }
 I<-which(Z==1,arr.ind=TRUE)
@@ -248,8 +198,8 @@ zi<-zi[zi>0]
 DMATI<-diag(c(zi))[,2:length(zi)]
 zi<-zi[-1]
 CMATI<-cbind(-zi,diag(c(zi)))
-DD<-block.fct(DD,DMATI)
-DI<-block.fct(DI,CMATI)
+DD<-direct.sum(DD,DMATI)
+DI<-direct.sum(DI,CMATI)
 }
 }
 matrici<-list(IMAT=DI,DMAT=DD)
@@ -258,6 +208,13 @@ else
 LDMatrix(lev,formula,names)
 
 }
+
+pop <- function(strata,ncell) {
+   kronecker(diag(strata),matrix(1,ncell,1))
+  }
+
+
+
 #  Author: Roberto Colombi
 
 #  Author: Roberto Colombi
@@ -424,9 +381,11 @@ if (all(!is.na(pw))){
 qq[d+1]<<-qq[d+1]+t(ddl$solution-z)%*%(ddl$solution-z)
 qq0[d+1]<<-qq0[d+1]+ur-t(ddl$solution-z)%*%(ddl$solution-z)}
 rm(ddl)
+
 if (any(is.na(pw))){
 pw<-matrix(0,ur+1,1)
-print( "failed")}
+#print( "failed")
+}
 
 pw
 }
@@ -663,7 +622,22 @@ marglist
 
 loglin.model<-function(lev,int=NULL,strata=1,dismarg=0,type="b",D=TRUE,
 c.gen=TRUE,printflag=FALSE,names=NULL,formula=NULL){
-if(is.null(formula)){
+
+if(!is.null(formula)&is.null(int)&printflag==TRUE){
+
+a<-terms(formula)
+m<-attr(a,"factors")
+x<-dimnames(m)[1]
+x<-unlist(x)
+myfun<-function(m){
+which(names %in% x[which(m==1)]
+ )}
+int<-apply(m,2,myfun)
+
+
+}
+
+if(is.null(formula)||(!is.null(int)&printflag==TRUE)){
 
 cocacontr=NULL
 if(type=="b"){
@@ -690,8 +664,10 @@ s<-length(all.int)
 type.temporary<-rep(type,length(lev))
 marg<-list()
 marg<-list(marg=MARG,int=all.int,types=type.temporary)
-model<-hmmm.model(marg=list(marg),lev=lev,cocacontr=cocacontr)
-dscr<-hmmm.model.summary(model,printflag=printflag)
+model<-hmmm.model(marg=list(marg),lev=lev,cocacontr=cocacontr,names=names)
+####################################
+
+dscr<-hmmm.model.summary(model,printflag=FALSE)
 XX<-diag(1,prod(lev)-1)
 if(!c.gen==TRUE&!is.null(int)){
 keep<-list()
@@ -724,7 +700,8 @@ included.index<-bar.col.for(int[[i]])}
 else{included.index<-int[[i]]}
 for(ii in 1:length(included.index)){
 inint<-paste(c(included.index[[ii]]),collapse="")
-inint<-as.numeric(dscr[which(dscr[,1]==inint,arr.ind=TRUE),][5:6])
+#inint<-as.numeric(dscr[which(dscr[,1]==inint,arr.ind=TRUE),][5:6])
+inint<-as.numeric(dscr[which(dscr[,1]==inint,arr.ind=TRUE),][(dim(dscr)[2]-1):dim(dscr)[2]])
 sel<-c(sel,c(inint[1]:inint[2]))}
 }
 XX<-unique(XX[,sel],MARGIN=2)
@@ -735,15 +712,20 @@ XX<-unique(XX[,sel],MARGIN=2)
 if(printflag==TRUE){
 
 i<-rowSums(XX)
-i<-i[as.numeric(dscr[,6])]
+
+i<-i[as.numeric(dscr[,dim(dscr)[2]])]
 print("included interactions")
 print(dscr[which(i==1),],quote=FALSE)
 print("exluded interactions")
 print(dscr[which(i==0),],quote=FALSE)
 }
 XX=kronecker(diag(1,strata),XX)
-mod.loglin<-hmmm.model(marg=list(marg),dismarg=dismarg,lev=lev,strata=strata,X=XX,cocacontr=cocacontr,names=names)
+
 }
+#
+if(is.null(formula)){
+mod.loglin<-
+hmmm.model(marg=list(marg),dismarg=dismarg,lev=lev,strata=strata,X=XX,cocacontr=cocacontr,names=names)}
 else{
 marginali<-paste(c(rep(type,length(lev))),collapse="-")
 marginali<-marg.list(marginali)
@@ -843,7 +825,8 @@ model$functions$d.fct=make.d.fct(model$dismod,D)
 model$functions$derdt.fct=make.derdt.fct(model$dismod,D)
 }
 model$names<-names
-
+model$formula<-formula
+model$Formula<-NULL
 class(model)<-"hmmmmod"
 model
 }
@@ -890,20 +873,36 @@ class(a)<-"hmmmfit"
 a
 }
 #  Author: Roberto Colombi
-        #          Dept IGIF
-        #          Univ of Bergamo ( last update: 25/07/06)
+        #          Dept Ingegneria
+        #          Univ of Bergamo ( last update: 23/11/12)
+
+
+
+
 
 hmmm.chibar<-function(nullfit,disfit,satfit,repli=6000){
+if(class(disfit)=="hmmmfit"){
+
 model<-disfit$model
 P<-chibar(m=nullfit$m,Z=model$matrici$Z,ZF=model$matrici$ZF,
 d.fct=model$functions$d.fct,derdt.fct=model$functions$derdt.fct,
 h.fct<-model$functions$h.fct,derht.fct=model$functions$derht.fct,
 test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli,
 formula=model$formula,names=model$names,lev=model$modello$livelli)
+}
+if(class(disfit)=="mphfit"){
+
+P<-chibar(m=disfit$m,Z=disfit$Z,ZF=disfit$ZF,
+d.fct=disfit$d.fct,derdt.fct=disfit$derdt.fct,
+h.fct<-disfit$h.fct,derht.fct=disfit$derht.fct,
+test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli
+)
+
+
+}
 class(P)<-"hmmmchibar"
 P
 }
-
 
 
 #  Author: Roberto Colombi
@@ -1167,6 +1166,19 @@ descr[,1]<-intnames}
 else{intnames<-descr[,2]
 descr[,1]<-intnames}
 
+if(is.null(Formula)){
+npar<-as.numeric(descr[,"npar"])
+intnames<-descr[,1]
+ll<-paste(fnames,collapse="*")
+l<-paste(intnames,"*",ll,sep="")
+l[npar<2]<-ll
+
+Formula<-as.list(paste(intnames,"=","~",l,sep=""))
+names(Formula)<-intnames
+}
+
+
+
 if(!is.null(names(Formula))){
 reo<-match(descr[,1],names(Formula))
 Formula<-Formula[reo]}
@@ -1217,11 +1229,15 @@ pstart<-0
   }
 if (replace) {
 colnames(XX)<-Xnames
+#model$modello$lev.strata<-strata
 model$matrici$X<-XX
 model$matrici$E<-t(create.U(model$matrici$X))
 if ( sum(abs(model$matrici$E)) == 0){
 model$functions$h.fct<-0
-model$functions$derht.fct<-0}
+model$functions$derht.fct<-0
+
+
+}
 
 else{
 model$functions$h.fct<-make.h.fct(model,E=FALSE)
@@ -1229,6 +1245,9 @@ model$functions$h.fct<-make.h.fct(model,E=FALSE)
  }
 model$functions$L.fct<-make.L.fct(model,TRUE)
 model$functions$derLt.fct<-make.derLt.fct(model,TRUE)
+model$lev.strata<-strata
+model$formula=NULL
+model$Formula<-Formula
 class(model)<-"hmmmmod"
 
 model}
@@ -1263,5 +1282,152 @@ dimnames = list(c("model A", "model B","LR test"), c("statistics value",
 #anova.table<-anova.table
 
 }
+
+
+
+
+######################     ########################################## 
+summary.hmmmfit<-function(object,cell.stats=TRUE,...){model.summary(object,cell.stats=cell.stats,model.info=FALSE)}
+summary.mphfit<-function(object,...){model.summary(object,cell.stats=TRUE,model.info=FALSE)}
+print.mphfit<-function(x,...){model.summary(x,cell.stats=FALSE,model.info=FALSE)}
+
+
+model.summary <- function(mph.out,cell.stats=FALSE,model.info=FALSE) {
+
+a <- mph.out 
+if(class(a)=="hmmmfit"){
+a$df=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata}
+
+if (cell.stats==TRUE||class(a)=="mphfit") {
+
+
+cat("\n GOODNESS OF FIT:")
+cat("\n")
+cat("    Likelihood Ratio Stat (df=",a$df,"):  Gsq = ",
+    round(a$Gsq,5))
+if (a$df > 0) cat(" (p = ",signif(1-pchisq(a$Gsq,a$df),5),")")
+cat("\n")
+cat("    Pearson's Score Stat  (df=",a$df,"):  Xsq = ",
+    round(a$Xsq,5))
+if (a$df > 0) cat(" (p = ",signif(1-pchisq(a$Xsq,a$df),5),")")
+cat("\n")
+
+}
+cat("\n") 
+
+
+if (a$L[1] != "NA") {
+  
+  sbeta <- as.matrix(sqrt(abs(diag(a$covbeta))))
+  z <- a$beta/sbeta
+  pval <- 2*(1-pnorm(abs(z)))
+  dimnames(sbeta)[2] <- "StdErr(BETA)"
+  dimnames(z)[2] <- "Z-ratio"
+  dimnames(pval)[2] <- "p-value"
+
+
+if(class(a)=="mphfit"||a$model$modello$strata >1){
+cat("\n COVARIATE EFFECTS...")
+  cat("\n")
+  print(cbind(a$beta,sbeta,z,pval))
+
+  cat("\n")}
+if (cell.stats==TRUE) {
+
+  stdL <- as.matrix(sqrt(diag(a$covL)))
+  dimnames(stdL)[2] <- "StdErr(L)"
+  LLL<-round(cbind(a$Lobs,a$L,stdL,a$Lresid),4)
+if(class(a)=="hmmmfit"){
+if(is.null(a$model$names)){
+descr<-hmmm.model.summary(a$model,printflag=FALSE)
+descr<-rep(descr[,1],descr[,4])}
+else{
+descr<-hmmm.model.summary(a$model,printflag=FALSE)
+
+descr<-hmmm.model.summary(a$model,printflag=FALSE)
+descr<-rep(descr[,2],descr[,6])}
+
+
+  intnames<-descr
+  rownames(LLL)<-rep(intnames,dim(a$model$matrici$Z)[2])}
+  print(LLL)
+  cat("\n")
+}}
+if (cell.stats==TRUE) {
+   stdm <- as.matrix(sqrt(diag(a$covm)))
+   stdp <- as.matrix(sqrt(diag(a$covp)))
+   dimnames(stdm)[2] <- "StdErr(FV)"
+   dimnames(stdp)[2] <- "StdErr(PROB)"
+   cat("\n JOINT PROBABILITIES AND EXPECTED FREQUENCIES")
+   cat("\n")
+   print(round(cbind(a$y,a$m,stdm,a$p,stdp,a$adjresid),5))
+   cat("\n")
+}
+
+
+
+if (model.info==TRUE) {
+print(a$formula)
+print(a$Formula)
+
+  }
+  
+}
+
+
+
+############LANG 'S FUNCTIONS####################################
+
+
+######################   begin num.deriv.fct ######################################       
+num.deriv.fct <- function(f.fct,m) {
+# 
+#   Author: Joseph B. Lang, Univ of Iowa
+#   Created:  c. 8/25/00 (last update: 3/30/04)
+#
+#   The numerical derivative of the transpose of function f.fct is 
+#   computed at the value m.  If f.fct is a mapping from 
+#   Rp to Rq then the result is a pxq matrix.
+#     I.e. Result is approximation to 
+#         d f.fct(m)^T/d m.
+# 
+  eps <- (.Machine$double.eps)^(1/3)
+  d <- eps * m + eps  
+  lenm <- length(m)
+  E <- diag(c(d)) 
+  f1 <- f.fct(m+E[,1])
+  lenf <- length(f1)
+  Ft <- (f1-f.fct(m-E[,1]))/(2*d[1])
+  for (j in 2:lenm) {
+     Ft <- cbind(Ft,((f.fct(m+E[,j])-f.fct(m-E[,j]))/(2*d[j])))
+  }
+  dimnames(Ft) <- NULL
+  t(Ft)
+}
+######################   end num.deriv.fct ######################################
+   
+
+######################   begin create.U    ###################################### 
+create.U <- function(X) {
+#
+#   Author: Joseph B. Lang, Univ of Iowa
+#   Created:  8/19/01  (last update: 3/30/04)
+#
+# This program creates a full-column rank matrix, U, with column space 
+# equal to the orthogonal complement of the column space of X.  That is,
+# U has column space equal to the null space of X^T.
+#
+#  Input:  X must be of full column rank
+#  
+  nrowX <- nrow(X)
+  u <- nrowX - ncol(X)
+  if (u == 0) {U <- 0}
+  else {w.mat <- matrix(runif(nrowX*u,1,10),nrowX,u)
+    U <- w.mat - X%*%solve(t(X)%*%X)%*%t(X)%*%w.mat
+  }
+  U
+}
+######################   end create.U     ######################################
+
 
 

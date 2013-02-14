@@ -15,7 +15,7 @@ the columns correspond to the strata.  A 1 in row i and column j means that the 
 from the jth stratum.  Note that Z has exactly one 1 in each row, and at least one 1 in each 
 column.  When Z = matrix(1,length(y),1) is a column vector of 1, all 
 the counts come from the same and only stratum.}
-\item{ZF}{Sample constraints matrix. For non-zero ZF, the columns are a subset of the columns in the population matrix Z,
+\item{ZF}{Sample constraints matrix. For non-zero ZF, if the columns are a subset of the columns in the population matrix Z,
 then the sample size of the jth stratum is considered fixed, 
 otherwise if the jth column of Z is NOT included in ZF, the jth stratum sample size is taken to be a realization 
 of a Poisson random variable.  When ZF=0, all of the stratum sample sizes are taken to be realizations of
@@ -58,7 +58,6 @@ Lang JB (2005) Homogeneous linear predictor models
 for contingency tables. Journal of the American Statistical Association, 100, 121-134.
 }
  \seealso{\code{\link{print.mphfit}}, \code{\link{summary.mphfit}}, \code{\link{hmmm.model}}, \code{\link{hmmm.mlfit}}}
-\author{Roberto Colombi} 
 \examples{
 y <- c(104,24,65,76,146,30,50,9,166) # Table 2 (Lang, 2004)
 y <- matrix(y,9,1)
@@ -68,65 +67,47 @@ Z <- kronecker(diag(3),matrix(1,3,1))
 # the 3rd stratum sample size is fixed
 ZF <- kronecker(diag(3),matrix(1,3,1))[,3]
 
-# Let P_ij be the expected number of cross-citations, P_ij=P(A=i,B=j),
-# where A = Citing journal and B = Cited journal. 
+########################################################################
+# Let (i,j) be a cross-citation, where i is the citing journal and j is 
+# the cited journal. Let m_ij be the expected counts of cross-citations.
 # The Gini concentrations of citations for each of the journals are: 
-# G_i = sum_j=1_3 (P_ij/P_i+)^2  for i=1,2,3.
-\donttest{
-Gini.fct <- function(m) {
-p <- diag(c(1/(Z%*%t(Z)%*%m)))%*%m 
-G1 <- sum(diag(matrix(c(p[1]/(p[1]+p[2]+p[3]),0,0,
-                  0,p[2]/(p[1]+p[2]+p[3]),0,
-                  0,0,p[3]/(p[1]+p[2]+p[3])),3,3,byrow=TRUE)*
-         matrix(c(p[1]/(p[1]+p[2]+p[3]),0,0,
-                  0,p[2]/(p[1]+p[2]+p[3]),0,
-                  0,0,p[3]/(p[1]+p[2]+p[3])),3,3,byrow=TRUE)))
-G2 <- sum(diag(matrix(c(p[4]/(p[4]+p[5]+p[6]),0,0,
-                  0,p[5]/(p[4]+p[5]+p[6]),0,
-                  0,0,p[6]/(p[4]+p[5]+p[6])),3,3,byrow=TRUE)*
-         matrix(c(p[4]/(p[4]+p[5]+p[6]),0,0,
-                  0,p[5]/(p[4]+p[5]+p[6]),0,
-                  0,0,p[6]/(p[4]+p[5]+p[6])),3,3,byrow=TRUE)))
-G3 <- sum(diag(matrix(c(p[7]/(p[7]+p[8]+p[9]),0,0,
-                  0,p[8]/(p[7]+p[8]+p[9]),0,
-                  0,0,p[9]/(p[7]+p[8]+p[9])),3,3,byrow=TRUE)*
-         matrix(c(p[7]/(p[7]+p[8]+p[9]),0,0,
-                  0,p[8]/(p[7]+p[8]+p[9]),0,
-                  0,0,p[9]/(p[7]+p[8]+p[9])),3,3,byrow=TRUE)))
-c(G1,G2,G3)}
+# G_i = sum_j=1_3 (m_ij/m_i+)^2  for i=1,2,3.
+
+ 
+Gini<-function(m) {
+ A<-matrix(m,3,3,byrow=TRUE)
+ GNum<-rowSums(A^2)
+ GDen<-rowSums(A)^2
+ G<-GNum/GDen
+ c(G[1],G[2],G[3])-c(0.410,0.455,0.684)
+ }
+
 
 # h_1 = c(G1,G2,G3)-c(0.410,0.455,0.684) = 0
-# HYPOTHESIS: no change in Gini concentrations 
+# HYPOTHESIS: no change in Gini concentrations
 # from the 1987-1989 observed values
 
-h.fct <- function(m) {G<-Gini.fct(m)
-c(G[1],G[2],G[3])-c(0.410,0.455,0.684)}
-
-mod_eq <- mphineq.fit(y,Z,ZF,h.fct=h.fct)
+mod_eq <- mphineq.fit(y,Z,ZF,h.fct=Gini)
 
 print(mod_eq)
 
-# Example of MPH model subject to inequality constraints 
+# Example of MPH model subject to inequality constraints
 
 # d_1 = c(G1,G2,G3)-c(0.410,0.455,0.684) >= 0
 # HYPOTHESIS: increase in Gini concentrations
 # from the 1987-1989 observed values
 
-d.fct <- function(m) {G<-Gini.fct(m)
-c(G[1],G[2],G[3])-c(0.410,0.455,0.684)}
+mod_ineq <- mphineq.fit(y,Z,ZF,d.fct=Gini)
 
-mod_ineq <- mphineq.fit(y,Z,ZF,d.fct=d.fct)
-print(mod_ineq)
+
+# Reference model: model without inequalities --> saturated model
+mod_sat <-mphineq.fit(y,Z,ZF)
+
 
 # HYPOTHESES TESTED:
 # NB: testA --> H0=(mod_eq) vs H1=(mod_ineq model)
-#     testB --> H0=(mod_ineq model) vs H1=(sat_mod model)
-# sat_mod --> saturated model (Gsq=0)
+# testB --> H0=(mod_ineq model) vs H1=(sat_mod model)
 
-m <- mod_ineq$m
-
-chibar(m,Z,ZF,d.fct=d.fct,test0=mod_eq$Gsq-mod_ineq$Gsq,
-test1=mod_ineq$Gsq,repli=6000,lev=c(3,3))
-}
+hmmm.chibar(nullfit=mod_eq,disfit=mod_ineq,satfit=mod_sat)
 }
 \keyword{models}

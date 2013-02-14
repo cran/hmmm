@@ -18,17 +18,18 @@ fnames = NULL, cocacontr = NULL, ncocacontr = NULL, replace=TRUE)
   \item{fnames}{Names of the covariates that describe the strata}
   \item{cocacontr}{A list of zero-one matrices to build "r" logits created by the function `recursive'}
   \item{ncocacontr}{Number of contrasts for every covariate, if NULL the maximum number is used}
-  \item{replace}{If TRUE (default) a new model object with design matrix X is produced, if FALSE the list of design matrices associated to each element specified in Formula is returned}
+  \item{replace}{If TRUE a new model object with design matrix X is produced, if FALSE the list of design matrices associated to each element specified in Formula is returned}
 }
-\details{When the marginal interactions of a hmm model are defined in terms of
-a linear predictor of covariates Cln(Mm)=Xbeta, the list of model-formulas defines additive effects of covariates on the interactions. 
+\details{The arguments \code{names} and \code{fnames} report the names of responses and covariates according to the order in which the variables are declared, see details of function `hmmm.model'. 
+
+When the marginal interactions of a hmm model are defined in terms of
+a linear predictor of covariates Cln(Mm)=Xbeta, the list of model formulas defines additive effects of covariates on the interactions. 
 In a case with 
 two response variables declared by \code{names<-c("A","B")}
 and two covariates, named C and D by \code{fnames=c("C","D")}, the additive effect of the covariates 
 on marginal logits of A and B and 
 log odds ratios (A.B) of the two responses is specified by the following \code{Formula}:
-\code{Formula<-list(A=~A+C+D+A:C+A:D, B=~B+C+D+B:C+B:D,
-A.B=~A.B+C+D+A.B:C+A.B:D)}. Use "zero" to constrain to zero all the interactions of a given type.
+\code{Formula<-list(A=~A*(C+D), B=~B*(C+D), A.B=~A.B*(C+D))}. Use "zero" to constrain to zero all the interactions of a given type. The saturated model is the default if \code{Formula} is not specified.
 }
 \value{An object of the class \code{hmmmmod}; it describes a marginal model with effects of covariates on the interactions. This model can be estimated by `hmmm.mlfit'.}
 \references{Glonek GFV, McCullagh P (1995) Multivariate logistic models for

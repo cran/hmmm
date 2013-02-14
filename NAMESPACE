@@ -1,5 +1,4 @@
-export(chibar,
-create.XMAT,
+export(create.XMAT,
 hmmm.chibar,
 hmmm.mlfit,
 hmmm.model,

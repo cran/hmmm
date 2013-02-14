@@ -10,7 +10,7 @@ Function to extract the vector of frequencies associated with the category names
 getnames(dat, st = 3, sep = " ")
 }
 \arguments{
-  \item{dat}{A contincency table in data frame format}
+  \item{dat}{A contingency table in data frame format}
   \item{st}{Length of the string for every category name}
   \item{sep}{Separator of category names}
 }

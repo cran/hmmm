@@ -3,23 +3,22 @@
 \title{chi-bar statistics test for hmm models}
 \description{Function to simulate weights and pvalues of a chi-bar distributed statistic
 for testing hypotheses of inequality constraints on parameters of hmm models.
-The models in inputs are objects inheriting from class \code{hmmmfit}. 
+The models in input are objects inheriting from class \code{hmmmfit} or \code{mphfit}. 
 }
 \usage{
 hmmm.chibar(nullfit, disfit, satfit, repli = 6000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{nullfit}{The estimated model with inequalities turned into equalities, a result of `hmmm.mlfit'}
-  \item{disfit}{The estimated model with inequalities, a result of `hmmm.mlfit'}
-  \item{satfit}{The estimated model without inequalities, a result of `hmmm.mlfit'}
+  \item{nullfit}{The estimated model with inequalities turned into equalities}
+  \item{disfit}{The estimated model with inequalities}
+  \item{satfit}{The estimated model without inequalities}
   \item{repli}{Number of simulations}
 }
-\details{
+\details{All the 3 argument models must be obtained by `hmmm.mlfit' or by `mphineq.fit'.
   The method "Simulation 2" described in Silvapulle and Sen, 2005, pg. 79 is used.
 }
-\value{
-A list with the statistics test of type A and B (Silvapulle and Sen, 2005, pg. 61) 
+\value{A list with the statistics test of type A and B (Silvapulle and Sen, 2005, pg. 61) 
 and their simulated pvalues.
 }
 \references{Silvapulle MJ, Sen PK (2005) Constrained statistical
@@ -33,8 +32,7 @@ marginals<-marg.list(marglist,mflag="m")
 ineq<-list(marg=c(1,2),int=list(c(1,2)),types=c("l","l"))
 
 # definition of the model with inequalities on interactions in ineq
-model<-hmmm.model(marg=marginals,dismarg=list(ineq),lev=c(7,4),
-strata=1,X=diag(1,27),names=names)
+model<-hmmm.model(marg=marginals,dismarg=list(ineq),lev=c(7,4),names=names)
 
 # saturated model
 msat<-hmmm.mlfit(y,model)
@@ -52,6 +50,6 @@ mnull<-hmmm.mlfit(y,model0)
 
 P<-hmmm.chibar(nullfit=mnull,disfit=mlr,satfit=msat)
 summary(P)}
-\seealso{\code{\link{chibar}}, \code{\link{summary.hmmmchibar}}, \code{\link{print.hmmmchibar}}}
+\seealso{\code{\link{summary.hmmmchibar}}, \code{\link{print.hmmmchibar}}}
 
 \keyword{htest}% at least one, from doc/KEYWORDS

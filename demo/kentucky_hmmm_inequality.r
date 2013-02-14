@@ -29,9 +29,9 @@ marglist<-marg.list(c("m-m-l","m-l-l","g-l-l"),mflag="m")
 inelist<-list(marg=c(1,2,3),int=list(c(1,2),c(1,2,3)),types=c("g","l","l"))
 
 
-# definition of the model with inequalities, 
+# definition of the model with inequalities 
 
-model<-hmmm.model(marg=marglist,lev=c(5,2,5),dismarg=list(inelist),X=diag(1,49),names=names)
+model<-hmmm.model(marg=marglist,lev=c(5,2,5),dismarg=list(inelist),names=names)
 
 # definition of the model with inequalities turned into equalities, 
 
@@ -51,7 +51,6 @@ modineq<-hmmm.mlfit(y,model,noineq=FALSE)
 # no EQUALITY contraints on the univariate marginal logits
 modin<-hmmm.mlfit(y,modeli)
 
-modin$m<-y
 
 # -------------------
 #  hypotheses tested
@@ -61,7 +60,8 @@ modin$m<-y
 #     testB --> H0=(modineq model) vs H1=(modnoineq model)
 #               that is: [H_1 simple] vs [no ineq. model]
 
-P<-hmmm.chibar(nullfit=modin,disfit=modineq,satfit=modnoineq,repli = 6000)
+P<-hmmm.chibar(nullfit=modin,disfit=modineq,satfit=modnoineq)
+
 print(P)
 
 
@@ -79,7 +79,7 @@ inelist<-list(marg=c(1,2,3),int=list(c(1,2),c(1,3),c(1,2,3)),types=c("g","l","l"
 
 # definition of the model with inequalities, 
 
-model<-hmmm.model(marg=marglist,lev=c(5,2,5),dismarg=list(inelist),X=diag(1,49),names=names)
+model<-hmmm.model(marg=marglist,lev=c(5,2,5),dismarg=list(inelist),names=names)
 
 # definition of the model with inequalities turned into equalities, 
 
@@ -100,8 +100,6 @@ modineq<-hmmm.mlfit(y,model,noineq=FALSE)
 # no EQUALITY contraints on the univariate marginal logits
 modin<-hmmm.mlfit(y,modeli)
 
-modin$m<-y
-
 
 # -------------------
 #  hypotheses tested
@@ -111,7 +109,7 @@ modin$m<-y
 #     testB --> H0=(modineq model) vs H1=(modnoineq model)
 #               that is: [H_1 & H_2 simple] vs [no ineq. model]
 
-p<-hmmm.chibar(nullfit=modin,disfit=modineq,satfit=modnoineq, repli = 6000)
+p<-hmmm.chibar(nullfit=modin,disfit=modineq,satfit=modnoineq)
 
 print(p)
 

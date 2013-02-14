@@ -34,7 +34,7 @@ are used for at least one variable in the multi-way table.
 Cazzaro M, Colombi R (2013)
 Marginal nested interactions for contingency tables. Communications in Statistics - Theory and Methods, to appear.
 }
-\seealso{\code{\link{hmmm.model}}, \code{\link{create.XMAT}}}
+\seealso{\code{\link{hmmm.model}}, \code{\link{create.XMAT}}, \code{\link{hmmm.model.X}}}
 \examples{
 data(kentucky)
 # 1 = injury 2 = restraint 3 = year

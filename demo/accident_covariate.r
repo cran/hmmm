@@ -30,7 +30,7 @@ names<-c("Type","Time")
 al<-list(
 Type=~Type*Age*Hour,
 Time=~Time*Age*Hour,
-Type.Time=~Type.Time+Age+Hour+Type.Time:Age+Type.Time:Hour
+Type.Time=~Type.Time*(Age+Hour)
 )
                                                               
 # estimation of the models                                                 
@@ -47,9 +47,9 @@ summary(mod1)
 # of the response variables (Type, Time) and on the log-odds ratios between Type and Time
 
 al<-list(
-Type=~Type+Age+Hour+Type:Age+Type:Hour,
-Time=~Time+Age+Hour+Time:Age+Time:Hour,
-Type.Time=~Type.Time+Age+Hour+Type.Time:Age+Type.Time:Hour
+Type=~Type*(Age+Hour),
+Time=~Time*(Age+Hour),
+Type.Time=~Type.Time*(Age+Hour)
 )
 
 model2<-hmmm.model.X(marg=marginals,lev=c(3,4),names=names,Formula=al,strata=c(3,2),fnames=c("Age","Hour"))
@@ -65,8 +65,8 @@ print(mod2)
 # in each sub-table identified by the levels of the covariates Age and Hour
 
 alind<-list(
-Type=~1+Type+Age+Hour+Type:Age+Type:Hour,
-Time=~1+Time+Age+Hour+Time:Age+Time:Hour,
+Type=~1+Type*(Age+Hour),
+Time=~1+Time*(Age+Hour),
 Type.Time="zero"
 )
 

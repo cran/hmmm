@@ -9,7 +9,8 @@ contingency tables proposed by Bergsma and Rudas (2002)
 tables proposed by Lang (2004, 2005); hidden Markov models where the distribution of the observed variables is described by a marginal model. 
 Inequality constraints on the parameters are allowed and can be tested.}
 
-\author{Roberto Colombi, Sabrina Giordano and Manuela Cazzaro}
+\author{Roberto Colombi, Sabrina Giordano and Manuela Cazzaro. Joseph B. Lang is the author
+of functions `num.deriv.fct', `create.U' for mph models.}
 \references{
 Bergsma WP, Rudas T (2002) 
 Marginal models for categorical data. The Annals of Statistics, 30, 140-159

@@ -12,8 +12,8 @@ A one-year categorical time series of daily sales of soft-drinks.}
     \item{\code{lemon.tea}}{A factor with levels: 1 = low, 2 = medium, 3 = high}
     \item{\code{orange.juice}}{A factor with levels: 1 = low, 2 = medium, 3 = high}
     \item{\code{apple.juice}}{A factor with levels: 1 = low, 2 = medium, 3 = high}
-    \item{\code{mint.tea}}{A factor with levels: 1 = low, 2 = medium, 3 = high}
-    \item{\code{soya.milk}}{A factor with levels: 1 = low, 2 = medium, 3 = high}
+    \item{\code{mint.tea}}{A factor with levels: 1 = low, 2 = high}
+    \item{\code{soya.milk}}{A factor with levels: 1 = low, 2 = high}
   }
 }
 \references{

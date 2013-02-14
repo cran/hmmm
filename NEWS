@@ -1,0 +1,16 @@
+Changes in Version 1.0-1
+
+  o Function hmmm.chibar can now handle also mph models and the function chibar has been deleted 
+
+
+  o Fixed bugs in hmmm.model.X, loglin.model and summary.mphfit
+
+
+  o Modified the function hidden.emfit to allow the use of more than one latent variable. The new function enables to define the marginal models for observed and latent variables using hmmm.model and hmmm.model.X 
+ 
+
+  o Updated few examples in the help files and in the demo 
+
+
+  o Revised the tutorial file
+

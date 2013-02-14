@@ -14,12 +14,12 @@ D = TRUE, c.gen = TRUE, printflag = FALSE, names = NULL, formula = NULL)}
   \item{dismarg}{List of interactions constrained by inequalities - see `hmmm.model'}
   \item{type}{"b" for baseline logits, "l" for local logits}
   \item{D}{Input argument for inequalities - see `hmmm.model'}
-  \item{c.gen}{If FALSE the input \code{int} must be the list of the minimal interaction sets to be excluded}
+  \item{c.gen}{If FALSE the input int must be the list of the minimal interaction sets to be excluded}
 \item{printflag}{If TRUE information on the included and excluded interactions are given}
 \item{names}{A character vector whose elements are the names of the variables}
 \item{formula}{A formula describing a log-linear model}}
 \details{This function simplifies `hmmm.model' in the case of log-linear models. If \code{formula} is employed, \code{c.gen} and \code{int} 
-must not be declared and \code{printflag} is not used.}
+must not be declared while \code{names} must be specified.}
 \value{An object of the class \code{hmmmmod} defining a log-linear model that can be estimated by `hmmm.mlfit'.}
 
 \references{Agresti A (2012) Categorical data Analysis, (3ed), Wiley, New York.
