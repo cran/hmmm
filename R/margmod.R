@@ -307,10 +307,12 @@ diag(1/c(models$matrici$MMAT%*%m))%*%models$matrici$MMAT)}
 
 # chibar pvalue
 
-chibar<-function(m,Z,ZF,d.fct=0,h.fct=0,test0=0,test1=0,repli=0,
+chibar<-function(m,Z,ZF,d.fct=0,h.fct=0,test0=0,test1=0,repli=0,kudo=TRUE,TESTAB=TRUE,alpha=c(0.02,0.03,0),pesi=NULL,
 derdt.fct=0,derht.fct=0,formula=NULL,names=NULL,lev){
+
 Zlist<-cocadise(Z,formula=formula,lev=lev,names=names)
   p<-m*c(1/Z%*%t(Z)%*%m)
+m<-p
    Dm <- diag(c(m))
 #-((ZF*c(m))%*%t(ZF*c(p)))
    Hmat<- t(Zlist$DMAT)%*%( diag(c(m))-((ZF*c(m))%*%t(ZF*c(p))))%*%Zlist$DMAT
@@ -346,56 +348,24 @@ else{X<-diag(1,dim(D)[2])}
 
 Hmat<-t(X)%*%Hmat%*%X
 l<-dim(Hmat)[1]
- #prov
+ #prov mi<-solve(chol(t(Zlist$DMAT)%*%( diag(c(p))-((ZF*c(p))%*%t(ZF*c(p))))%*%Zlist$DMA))
 mi<-solve(chol(Hmat))
 
 DD<-D%*%mi
 #ZZ<-matrix(rnorm(repli*l,0,1),l,repli)
 
 ur<-qr(D)$rank
+
+
 qq<-qq0<-w<-matrix(0,ur+1,1)
+if(is.null(pesi)){
+if(!kudo){
+w<-pesi.sim(l,ur,DD,repli)}
+else{w<-kudo.classic(DD,diag(1,l))}
 
-
-#for(i in 1:repli){
-#z<-matrix(ZZ[,i],l,1)
-Z<-matrix(rnorm(l*repli,0,1),l,repli)
-qq<-qq0<-matrix(0,ur+1,1)
-pesiw<-function(z){
-#solve.QP(Dmat, dvec, Amat, bvec, meq=0, factorized=FALSE)
-pw<-matrix(0,ur+1,1)
-ddl<-NULL
-
-ddl<-
-solve.QP(Dmat=diag(1,l),dvec= z, Amat=t(DD), meq=0, factorized=FALSE)
-
-if (is.null(ddl)){next}
-
-#dd<-ddl$solution
-#dd0<-ddl$unconstrainted.solution
-d<-NULL
-d<-qr(matrix(D[!(DD%*%ddl$solution>1e-16),],ncol=l,byrow=TRUE))$rank
-
-
-pw[d+1]<-pw[d+1]+1
-if (all(!is.na(pw))){
-qq[d+1]<<-qq[d+1]+t(ddl$solution-z)%*%(ddl$solution-z)
-qq0[d+1]<<-qq0[d+1]+ur-t(ddl$solution-z)%*%(ddl$solution-z)}
-rm(ddl)
-
-if (any(is.na(pw))){
-pw<-matrix(0,ur+1,1)
-#print( "failed")
+#else{kudo.classic(D,solve(Hmat))}
 }
-
-pw
-}
-
-w<-apply(Z,MARGIN=2,FUN=pesiw)
-w<-apply(w,1,sum)
-qq0<-qq0/w
-qq<-qq/w
-w<-w/sum(w)
-
+else { w=pesi}
 gdl0<-matrix(0,ur+1,1)
 if( (test0 >0)){
 q1<-matrix(0,ur+1,1)}
@@ -427,12 +397,336 @@ q1[i]<-1-pchisq(test1,gdl1[i])}
 }
 }
 p1<-t(w)%*%q1
-
-lista<-list(testA=test0,pvalA=p0,testB=test1,pvalB=p1,pesi=cbind(w,gdl0,gdl1,qq0,qq))
+dec=NULL
+if(TESTAB)
+{
+dec<-hmmm.testAB(testA=test0,testB=test1,alpha=alpha,printflag=FALSE,pesi=w)}
+lista<-list(testA=test0,pvalA=p0,testB=test1,pvalB=p1,pesi=cbind(w,gdl0,gdl1),TESTAB.dec=dec)
 class(lista)<-"hmmmchibar"
 lista
 
 }
+
+pesi.sim<-function(l,ur,DD,repli)
+{
+#for(i in 1:repli){
+#z<-matrix(ZZ[,i],l,1)
+Z<-matrix(rnorm(l*repli,0,1),l,repli)
+qq<-qq0<-matrix(0,ur+1,1)
+
+pesiw<-function(z){
+#solve.QP(Dmat, dvec, Amat, bvec, meq=0, factorized=FALSE)
+pw<-matrix(0,ur+1,1)
+ddl<-NULL
+
+
+ddl<-
+solve.QP(Dmat=diag(1,l),dvec= z, Amat=t(DD), meq=0, factorized=FALSE)
+
+if (is.null(ddl)){next}
+#dd<-ddl$solution
+#dd0<-ddl$unconstrainted.solution
+d<-NULL
+#d<-qr(DD[(DD%*%ddl$solution<0),1e-3])$rank
+####d<-qr(matrix(D[!(DD%*%ddl$solution<1e-19),],ncol=l,byrow=TRUE))$rank
+d<-qr(DD[ddl$iact,])$rank
+
+#d<-0
+#if(ddl$iact != 0) {d<-length(ddl$iact)}
+pw[d+1]<-pw[d+1]+1
+if (all(!is.na(pw))){
+qq[d+1]<-qq[d+1]+t(ddl$solution-z)%*%(ddl$solution-z)
+qq0[d+1]<-qq0[d+1]+ur-t(ddl$solution-z)%*%(ddl$solution-z)}
+rm(ddl)
+
+if (any(is.na(pw))){
+pw<-matrix(0,ur+1,1)
+#print( "failed")
+
+}
+
+pw
+}
+
+w<-apply(Z,MARGIN=2,FUN=pesiw)
+w<-apply(w,1,sum)
+qq0<-qq0/w
+qq<-qq/w
+w<-w/sum(w)
+#w<-rev(w)
+
+}#fine pesi.sim
+
+
+pw.set<-function(n){
+size<-matrix(0:n)
+m<-matrix(0,n,1)
+for(i in 1:n){
+m<-cbind(m,combn(c(1:n), i, tabulate, nbins=n))
+
+}
+m}
+
+
+
+
+kudo.classic<-function(Dis,Var)
+#Dis matrice diseguaglianze######################
+#var matrice varianze#########################
+{
+
+Omega<-Dis%*%Var%*%t(Dis)
+k<-dim(Omega)[1]
+#tutti i sottoinsiemi matrice vettori indicatore funzione NON ALLEGATA al file
+A<-pw.set(k)
+
+a<-colSums(A)
+w<-matrix(0,k+1,1)
+#integrali per primo e ultimo peso##########################
+Mvncdf1<-pmvnorm(lower=rep(0,k),upper=rep(Inf,k),sigma=solve(Omega))
+Mvncdf0<-pmvnorm(lower=rep(0,k),upper=rep(Inf,k),sigma=Omega)
+#caso particolare di k=2###################################
+
+if(k==2){
+#Mvncdf0<-pmvnorm(lower=rep(0,k),upper=rep(Inf,k),sigma=Omega)
+w[1]<- Mvncdf0  #0
+w[2]<-1-  Mvncdf0 -Mvncdf1  #1
+w[3]<-Mvncdf1    #2
+}
+
+########################caso generale
+else{
+
+#elimino due pesi centrali distinguendo caso k+1 pari e k+1 dispari
+#dove k è numero vincoli
+if(floor((k+1)/2)==(k+1)/2){
+J<-(0:k)[-c((k+1)/2,(k+3)/2)]}
+else{
+ J<-(0:k)[-c((k+2)/2,(k+4)/2)]}
+oe<-setdiff(0:k,J)
+#iterazione per i pesi restanti################################
+for(j in J){
+
+hj<-which(a==j)
+sj<-length(hj)
+
+Aj=matrix(A[,hj],k,sj)
+
+#sj<-dim(Aj)[2]
+w[j+1]<-0
+
+#####loop per facce di dimensione j############################
+for (h in 1:sj){
+aj<-Aj[,h]
+
+r1<-length(which(aj==1))
+r0<-length(which(aj==0))
+
+
+
+
+#########calcolo integrali per una faccia del cono
+mvncdf1<-Mvncdf1
+mvncdf0<-Mvncdf0
+
+if((r0>0)&(r1>0)){
+V<-solve(Omega[which(aj==1),which(aj==1)])
+mvncdf1<-pmvnorm(lower=rep(0,r1),upper=rep(Inf,r1),sigma=V)
+U<-Omega[which(aj==0),which(aj==0)]-Omega[which(aj==0),which(aj==1)]%*%V%*%Omega[which(aj==1),which(aj==0)]
+mvncdf0<-pmvnorm(lower=rep(0,r0),upper=rep(Inf,r0),sigma=U)}
+
+w[j+1]=w[j+1]+(r0>0)*(r1>0)*mvncdf0*mvncdf1+(r0>0)*(r1==0)*mvncdf0+(r0==0)*(r1>0)*mvncdf1
+}
+}
+######fine iterazioni
+####calcolo i due pesi restanti usando la formula di Sen Silvapulle
+odd<-sum(w[seq(2,k+1,2)])
+even<-sum(w[seq(1,k+1,2)])
+oe<-oe+1
+
+w[oe[1]]<-0.5-odd*(floor(oe[1]/2)==oe[1]/2)-even*(!(floor(oe[1]/2)==oe[1]/2))
+w[oe[2]]<-0.5-odd*(floor(oe[2]/2)==oe[2]/2)-even*(!(floor(oe[2]/2)==oe[2]/2))
+
+} 
+#ESEMPIO
+w
+}
+
+
+
+
+
+
+# 
+#   Author: R. Colombi
+#   Created:  04-20-2013 (last update: 04-20-2013)
+#
+#   The Dardanoni Multiple Testing Procedure for type A and Type B hypotheses 
+# 
+
+Fchibar2<-function(x=Inf,y=Inf,pesi){
+
+ur<-dim(pesi)[1]-1
+
+test0<-x
+test1<-y
+
+
+gdl0<-matrix(0,ur+1,1)
+q0<-matrix(0,ur+1,1)
+for(i in 1:(ur+1)){
+gdl0[i]<-ur+1-i
+if ((pesi[,1][i] >0)&(gdl0[i]==0)){
+q0[i]=1}
+if ((pesi[,1][i] >0)&(gdl0[i]>0)){
+q0[i]<-pchisq(test0,gdl0[i])}
+}
+
+p0<-t(pesi[,1])%*%q0
+gdl1<-matrix(0,ur+1,1)
+q1<-matrix(0,ur+1,1)
+for(i in 1:(ur+1)){
+gdl1[i]<-i-1
+if ((pesi[,1][i] >0)&(gdl1[i]==0)){
+q1[i]=1}
+if ((pesi[,1][i] >0)&(gdl1[i]>0)){
+q1[i]<-pchisq(test1,gdl1[i])}
+}
+
+p1<-t(pesi[,1])%*%q1
+p01<-t((pesi[,1]))%*%(q1*q0)
+c(p0,p1,p01)
+}
+
+
+qchibar<-function(pesi,alphaA=0.05,alphaB=0.05){
+if(!is.matrix(pesi)){pesi<-matrix(pesi,ncol=1)}
+
+F1<-function(x){Fchibar2(y=x,pesi=pesi)[2]-1+alphaB}
+F0<-function(x){Fchibar2(x=x,pesi=pesi)[1]-1+alphaA}
+qA<-uniroot(F0,c(0,999999))$root
+qB<-uniroot(F1,c(0,999999))$root
+q<-c(qA,qB)
+names(q)<-c("qA","qB")
+q
+}
+
+testDF<-function(pesi,alpha){
+if(!is.matrix(pesi)){pesi<-matrix(pesi,ncol=1)}
+y1<-Inf
+if(alpha[2]>alpha[3]){
+#max<-qchisq(1-alpha[2]+alpha[3],dim(pesi)[1]-1)
+F1<-function(x){Fchibar2(y=x,pesi=pesi)[2]-1+alpha[2]-alpha[3]}
+y1<-uniroot(F1,c(0,qchisq(1-alpha[2]+alpha[3],dim(pesi)[1]-1)
+))$root}
+#max<-qchisq(1-alpha[2]-alpha[1],dim(pesi)[1]-1)
+Fx<-function(x){Fchibar2(x=x,y=y1,pesi=pesi)[3]-1+alpha[2]+alpha[1]}
+xs<-uniroot(Fx,c(0,999999))$root
+#max<-min(y1,qchisq(1-alpha[2]+alpha[3],dim(pesi)[1]-1)+1)
+
+y0<-y1
+if((alpha[3]>0)){
+F0<-function(x){
+(Fchibar2(y=x,pesi=pesi)[2]-Fchibar2(x=xs,y=x,pesi=pesi)[3])-alpha[1]}
+max<-min(y1,999999)
+y0<-uniroot(F0,c(0,max))$root
+}
+cv<-c(y1,y0,xs)
+names(cv)<-c("y1","y0","xs")
+cv
+}
+hmmm.testAB<-function(testA=NULL,testB=NULL,P,alpha=c(0.025,0.025,0.001),printflag=FALSE,pesi=NULL,cv=NULL){
+if(is.null(pesi)){pesi<-P$pesi}
+if(is.null(testA)|is.null(testB)){
+testA<-P$testA
+testB<-P$testB}
+if(is.null(cv)){
+cv<-testDF(pesi,alpha)}
+#results<-
+#matrix(c(P$testA,P$testB,P$pvalA,P$pvalB),2,2)
+#rownames(results)<-c("testA","testB")
+#colnames(results)<-c("test","pvalue")
+#colnames(P$pesi)<-c("weights","df A","df B","sim df A","sim df B")
+#rownames(P$pesi)<-as.character(P$pesi[,3])
+if(printflag){
+#cat("\n TESTA and TESTB statistics \n")
+#cat("\n")
+#print(results)
+cat("\n")
+cat("\n DF PROCEDURE")
+cat("\n")
+cat("\n")
+
+cat("\n  classification errors:")
+cat("\n")
+cat( " alpha1= ",alpha[1]," alpha2= ",alpha[2]," alpha12= ",alpha[3])
+cat("\n")
+cat("\n DF critical values:")
+cat( " y1= ",cv[1]," y0= ",cv[2]," xs= ",cv[3])
+cat("\n")
+cat("\n DF DECISION")
+dec<-NULL
+if((testA< cv[3])&( testB< cv[1])){ cat("\n Mantain the null model")
+dec=0}
+if((testA> cv[3])&( testB< cv[2])) {
+cat("\n Reject the null model versus  the inequality model")
+dec=1}
+if((testA> cv[3])&( testB> cv[2])|( testB> cv[1])){
+cat("\n Reject the null model versus the unrestricted model")
+cat("\n")
+dec=2}
+cat("\n")
+}
+if((testA< cv[3])&( testB< cv[1])){ 
+dec=0}
+if((testA> cv[3])&( testB< cv[2])) {
+dec=1}
+if((testA> cv[3])&( testB> cv[2])|( testB> cv[1])){
+dec=2
+
+ }
+list(dec=dec,testA=testA,testB=testB,cv=cv,alpha=alpha)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #  Author: Roberto Colombi
         #          Dept IGIF
         #          Univ of Bergamo ( last update: 25/07/06)
@@ -448,16 +742,50 @@ results<-
 matrix(c(P$testA,P$testB,P$pvalA,P$pvalB),2,2)
 rownames(results)<-c("testA","testB")
 colnames(results)<-c("test","pvalue")
-colnames(P$pesi)<-c("weights","df A","df B","sim df A","sim df B")
+colnames(P$pesi)<-c("weights","df A","df B")
 rownames(P$pesi)<-as.character(P$pesi[,3])
-cat("\n chibar simulated pvalues\n")
+cat("\n CHIBAR P VALUES\n")
 cat("\n")
 print(results)
 cat("\n")
-if(plotflag>0){
-cat("\n simulated weights of the chibar-distribution\n")
+
+
+if(!is.null(P$TESTAB.dec))
+{
 cat("\n")
-print(P$pesi)}
+cat("\n TESTAB  PROCEDURE")
+cat("\n")
+cat("\n")
+
+cat("\n  classification errors:")
+cat("\n")
+cat( " alpha1 = ",P$TESTAB.dec$alpha[1]," alpha2 = ",P$TESTAB.dec$alpha[2]," alpha12 = ",P$TESTAB.dec$alpha[3])
+cat("\n")
+cat("\n  critical values:")
+cv<-P$TESTAB.dec$cv
+testA<-P$testA
+testB<-P$testB
+cat( " y2 = ", cv[1]," y12 = ", cv[2], "y1 = ", cv[3])
+cat("\n")
+cat("\n TESTAB DECISION")
+dec<-NULL
+if((testA < cv[3])&( testB < cv[1])){ cat("\n Mantain the null model")
+dec=0}
+if((testA > cv[3])&( testB < cv[2])) {
+cat("\n Reject the null model for the inequality model")
+dec=1}
+if((testA > cv[3])&( testB > cv[2])|( testB > cv[1])){
+cat("\n Reject the null model for the unrestricted model")
+cat("\n")
+dec=2}
+cat("\n")
+}
+
+
+if(plotflag>0){
+cat("\n  weights of the chibar-distribution\n")
+cat("\n")
+print(P$pesi[,1:3])}
 if(plotflag>1){
 
 ur<-length(P$pesi[,1])-1
@@ -880,14 +1208,15 @@ a
 
 
 
-hmmm.chibar<-function(nullfit,disfit,satfit,repli=6000){
+hmmm.chibar<-function(nullfit,disfit,satfit,repli=6000,kudo=FALSE,TESTAB=FALSE,alpha=c(0.02,0.03,0),pesi=NULL){
 if(class(disfit)=="hmmmfit"){
 
 model<-disfit$model
+#####################nullfit$m
 P<-chibar(m=nullfit$m,Z=model$matrici$Z,ZF=model$matrici$ZF,
 d.fct=model$functions$d.fct,derdt.fct=model$functions$derdt.fct,
-h.fct<-model$functions$h.fct,derht.fct=model$functions$derht.fct,
-test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli,
+h.fct=model$functions$h.fct,derht.fct=model$functions$derht.fct,
+test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli,kudo=kudo,TESTAB=TESTAB,alpha=alpha,pesi=pesi,
 formula=model$formula,names=model$names,lev=model$modello$livelli)
 }
 if(class(disfit)=="mphfit"){
@@ -895,7 +1224,7 @@ if(class(disfit)=="mphfit"){
 P<-chibar(m=disfit$m,Z=disfit$Z,ZF=disfit$ZF,
 d.fct=disfit$d.fct,derdt.fct=disfit$derdt.fct,
 h.fct<-disfit$h.fct,derht.fct=disfit$derht.fct,
-test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli
+test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli,kudo=kudo,TESTAB=TESTAB,alpha=alpha,pesi=pesi,
 )
 
 
@@ -954,20 +1283,29 @@ cat("\n")
 
 if(printhidden==1){
 cat("\n")
+cat("LOGLIK OF THE HIDDEN MODEL:")
+
+
+cat("  Loglik = ",
+    round(a$Gsq,5))
+
+cat("\n")
+cat("\n")
 cat("SUMMARY of MODEL:", aname )
 
 
 
 cat("   
- (df=",a$df,"):  Loglik = ",
-    round(a$Gsq,5))
+ (df=",a$df,")")
 
+
+cat("\n")
 
 
 
 
 }
-cat("\n")
+
 
 
 if(printhidden==2){
@@ -977,10 +1315,10 @@ cat("SUMMARY of MODEL:", aname )
 
 
 cat("
-df=",a$df)
+(df=",a$df,")")
     
 
-
+cat("\n")
 
 
 

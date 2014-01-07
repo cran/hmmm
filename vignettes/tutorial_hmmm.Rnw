@@ -57,89 +57,185 @@ defined, estimated and tested using the \pkg{hmmm} package.
 \begin{document}
 \maketitle
 
-\section{Introduction}\label{sec:s1}
-
-Marginal models  are  defined for categorical variables by imposing restrictions on 
-marginal distributions of contingency tables, \citep[Ch 12]{agresti_2012}. 
-A  complete hierarchical multinomial  marginal model (HMM) is specified by
- an ordered set of marginal distributions and a set of interactions (contrasts of logarithms of sums of probabilities) defined within different marginal 
+\section{Introduction}
+Marginal models  are  defined for categorical variables by imposing restrictions on
+marginal distributions of contingency tables, \cite[Ch 12]{agresti_2012}.
+A  complete hierarchical multinomial  marginal (HMM) model is specified by
+ an ordered set of marginal distributions and a set of interactions (contrasts of logarithms of sums of probabilities) defined within different marginal
 distributions according to the rules of hierarchy and completeness, see \cite{bergsma_rudas_2002}, \cite{barcolfor_2007}.
-In particular, in HMM models every interaction is defined in one and only one marginal distribution (completeness) and
- within the first marginal set which contains it (hierarchy).
+
 By imposing equality and inequality constraints on marginal
-interactions, interesting hypotheses (i.e., independence in sub-tables, where some categories are collapsed, association in marginal
- tables, conditional independence or additive effects of covariates in marginal tables, marginal 
-homogeneity, monotone dependence, positive association, among others) can be tested in HMM models.
- 
-In this tutorial we show how to define and estimate HMM models with interactions 
-restricted under equality and inequality constraints or influenced by the effects of covariates  
-using the \pkg{hmmm} package.
+interactions, interesting hypotheses (i.e., independence in sub-tables where some categories are collapsed, association in marginal
+ tables, conditional independence or additive effects of covariates in marginal tables, marginal
+homogeneity, monotone dependence, positive association, among others) can be tested in HMM models. 
+
+We developed a new  package \pkg{hmmm} for the \proglang{R} statistical programming environment
+\citep{R} for estimating and testing HMM models with equality and inequality constraints on marginal parameters.
+The \proglang{R} package \pkg{hmmm} is available from the Comprehensive \proglang{R} Archive Network at 
+\url{http://CRAN.R-project.org/package=hmmm}.
+
+The class of models that the \pkg{hmmm} package enables us to deal with is wide
+since
+the complete hierarchical marginal models are a generalization of several models proposed in the
+ literature of categorical data analysis. For example, {\it log-linear models}
+  are HMM models where all the interactions are defined within the joint
+   distribution. The \cite{bergsma_rudas_2002} {\it marginal models}
+    are HMM models where the interactions of log-linear type are defined in
+    different marginal distributions. \cite{barcolfor_2007} proposed an extension of the Bergsma and Rudas HMM models involving more
+     general types of interactions, while \cite{glonek_mccullagh_1995}
+{\it multivariate logistic models} are HMM models
+ which use all the marginal distributions and the parameters are the highest
+ order interactions that can be defined within every marginal distribution.
 
 
-\section{How to define and estimate marginal models}\label{sec:s2}
+Furthermore, other models that can be treated with \pkg{hmmm} are {\it hidden
+Markov models} with observed categorical variables whose distributions
+conditioned by the latent states are defined as HMM models and  \cite{lang_2004}
+ \textit{multinomial Poisson homogeneous} (MPH) \textit{models}  which include HMM models as special cases.
+
+Marginal models are introduced in Section~\ref{sec:s2}
+ and the functions of the package \pkg{hmmm} for defining, 
+estimating and testing HMM models with equality constraints on marginal interactions are illustrated in Sections~\ref{sec:s3},~\ref{sec:s4},~\ref{sec:s5},~\ref{sec:s6}. Sections~\ref{sec:s4},~\ref{sec:s5} present more general types of interactions while Section~\ref{sec:s6} deals with  models for repeated measures. The interactions are allowed to depend 
+on covariates in Section~\ref{sec:s7}. 
+ Section~\ref{sec:s8} is devoted to inequality constrained HMM models and  Section~\ref{sec:s9} shows how Lang MPH models, subject to inequality constraints, 
+can be estimated using the package. Final remarks complete the work.
+
+\section{Basic concepts}\label{sec:s2}
+
+Consider $q$ categorical variables  denoted by the first $q$ integers. The set of all variables is
+$\cg Q = \{1,2, ..., q\}$ and a subset of variables which defines a given marginal distribution is denoted by the subset $\cg M$ of the corresponding integers, $\cg M \subseteq \cg Q $.
+
+
+The vector containing the cell probabilities of the joint distribution is denoted by $\b \pi$. A one-to-one function $\b \eta = g(\b \pi)$ defines a  parameterization of $\b \pi$ in terms of $\b \eta$.
+
+In the complete hierarchical multinomial  marginal models, the elements of $\b \eta$ are parameters called {\it marginal  interactions}.
+The marginal interactions are  contrasts of logarithms of sums of probabilities defined within different marginal
+distributions associated to a non-decreasing sequence of marginal sets $\cg M_1, \ldots, \cg M_k$ ($\cg M_k = \cg Q$)
+according to the rules of hierarchy and completeness. More specifically, in complete hierarchical multinomial marginal  models, every interaction is defined in one and only one marginal 
+distribution (completeness) and within the first marginal set which contains it (hierarchy). For instance, given three binary  variables, 
+and the marginal sets $\cg M_1= \{1\}, \cg M_2= \{1,2\}, \cg M_3= \{1,2,3\}$, the interactions in $\b \eta$ are three logits, three log-odds ratios and a third-order interaction
+ defined as follows: a logit is defined on the univariate distribution of variable 1, a second logit and a log-odds ratio are defined on the bivariate distribution
+  of the first two variables.  More precisely the second logit is defined  on the conditional distribution of variable 2 given that the first variable is
+   at the reference category. 
+  All the remaining interactions (a logit, two log-odds ratios
+   and the third-order interaction) involve variable 3 
+  and are defined in the set $\cg M_3$.
+
+
+The elements of $\b \eta$, defined on the marginal distribution of the variables in $\cg M$, are specified by assigning a logit type   to each variable $i \in \cg M$
+ among the 5 different types: baseline (\code{b}) $\eta_i(x;b)=\log\{Pr(i=x)\}-\{Pr(i=1)\}$ (the reference category is the first),
+ local (\code{l}) $\eta_i(x;l)=\log\{Pr(i=x)\}-\{Pr(i=x-1)\}$, global (\code{g}) $\eta_i(x;g)=\log\{Pr(i>x-1)\}-\{Pr(i \leq x-1)\}$,
+ continuation (\code{c}) $\eta_i(x;c)=\log\{Pr(i>x-1)\}-\{Pr(i = x-1)\}$
+and reverse continuation (\code{rc}) $\eta_i(x;rc)=\log\{Pr(i=x)\}-\{Pr(i \leq x-1)\}$, with $x=2,...,c_i$, where $c_i$ is the number of categories 
+of the variable $i$.
+ Log-odds ratios and higher-order interactions are defined as contrasts of the mentioned logits as shown by \citet{barcolfor_2007}, \cite{Douglas_et_al_1990}, among others. For example, if logits of type (\code{g}) and (\code{c}) are used for variable $i$ and $j$ respectively, 
+  the following log-odds ratios
+ of type global-continuation (\code{gc}) are defined as $\eta_{ij}(x_1,x_2;g,c)=\eta_{j}(x_2;c|i>x_1-1) - \eta_{j}(x_2;c|i\leq x_1-1)=$ $ \eta_{i}(x_1;g|j>x_2-1) -\eta_{i}(x_1;g|j=x_2-1)$ with $x_1=2,...,c_i$ and $x_2=2,...,c_j$. Moreover, if logit baseline (\code{b}) is assigned to a third variable, third-order interactions are of global-continuation-baseline type (\code{gcb}) defined as  $\eta_{ijk}(x_1,x_2,x_3;g,c,b)=\eta_{i}(x_1;g|j>x_2-1,k=x_3) -\eta_{i}(x_1;g|j=x_2-1,k=x_3)-\eta_{i}(x_1;g|j>x_2-1,k=1) +\eta_{i}(x_1;g|j=x_2-1,k=1)$, with $x_1=2,...,c_i$, $x_2=2,...,c_j$ and $x_3=2,...,c_k$. A similar reasoning holds for higher-order interactions.
+
+
+In  the Bergsma and Rudas models the components of  $\b \eta$ are log-linear parameters  defined in marginal distributions 
+(only baseline type \code{b} logits are used),
+while in the Bartolucci {\it et al.}~parameterization all the previous logits can be used and $\b \eta$ is called a vector of {\it generalized marginal interactions}
+  which are more meaningful when the variables have an ordinal nature.
+Moreover, \cite{cazzaro_colombi_2013} proposed another type of parameters, called {\it recursive}  (or {\it nested}) {\it marginal interactions}
+  based on a new type of logits (recursive logits, \code{r}) which will be described in Section~\ref{sec:s5}.
+
+The vector $\b \eta$ can be written in matrix form as $\b C log(\b M \b \pi)$ where the rows of the matrix $\b C$ are contrasts, $\b M$ is a
+zero-one matrix which sums the probabilities of appropriate cells, and the operator $log(.)$ is coordinate-wise.
+See the appendix of \cite{barcolfor_2007} for the construction of the  $\b C, \b M$ matrices.
+
+
+Conditional independencies among variables can be considered by imposing simple zero restrictions on the model parameters as $\b E \b \eta= \b 0$ (Sections~\ref{sec:s3},~\ref{sec:s4},~\ref{sec:s5},~\ref{sec:s6}), the effect of  covariates on  responses can be modelled by a {\it linear predictor} as $\b \eta = \b X \b \beta$ (Section~\ref{sec:s7}) and 
+ hypotheses of stochastic dominance or positive association bear on inequality constraints as $\b D \b \eta \geq \b 0$ (Section~\ref{sec:s8}).
+
+In the \pkg{hmmm} package, HMM models involving equality and inequality constraints are seen as special cases of MPH
+models \citep{cazzaro_colombi_2009} and are estimated by maximizing the log-likelihood function of a {\it reference log-linear model} under the constraints: $\b E \b \eta= \b 0$ or $ \b \eta = \b X \b \beta$ and $\b D \b \eta \geq \b 0$ through a modified version of the algorithm proposed by \cite{lang_2004} for equality constraints only. The reference log-linear model  is usually the saturated one, though
+not necessary.
+
+
+\section{How to define and estimate marginal models}\label{sec:s3}
 
 The starting point for the marginal modelling of categorical data is
  a multidimensional table providing
  the joint distribution of two or more
 unordered and/or (partially) ordered categorical variables.
 
-In the \pkg{hmmm} package, the input data must be a vector of cell frequencies
-arranged in antilexicographic order.
-To start with,  we show  how to get a vector of labeled frequencies from the
-\code{accident} data frame, regarding accidents occurred to workers of a northern 
-Italian city in 1998. The data are provided by INAIL, the Italian institute for 
-insurance against factory accidents. The data frame columns contain the variables:
- var.~1 \code{Type} of the injury (with 3 levels), var.~2
-\code{Time} to recover (with 4 levels), var.~3 \code{Age} of the
-worker (with 3 levels) and var.~4 solar \code{Hour} (with 2 levels)
-along with the counts for each configuration of the variables (last column).
-Note that variables are denoted by integers, the lower the number identifying
-the variable, the faster its category subscript changes in the vectorized
-contingency table.
+In this section, we will describe the main functions of the \pkg{hmmm} package to handle marginal models. Three are the key steps: load the vector of counts, define the HMM model through the function \code{hmmm.model()}, estimate and test the model using \code{hmmm.mlfit()}. We will go through each step to illustrate the flexibility and potential of the package.
+
+In the \pkg{hmmm} package, the input data \code{y} must be a vectorized contingency table. The following example clarifies how the cell frequencies are arranged in \code{y}. 
+
+To start with, we consider the \code{accident} data. This data frame regards accidents occurred to 1052 workers of a northern 
+Italian city in 1998 who claimed for a compensation. The data are provided by INAIL, the Italian institute for 
+insurance against factory accidents and  concern the variables:
+\code{Type} of the injury (with 3 levels: \code{uncertain}, \code{avoidable}, \code{not-avoidable}), 
+\code{Time} to recover (number of working days lost, an indicator of seriousness of the injury, with 4 levels: \code{0 |-- 7}, \code{7 |-- 21}, \code{21 |-- 60}, \code{>= 60}),  
+\code{Age} of the
+worker (years, with 3 levels: \code{<= 25}, \code{26 - 45}, \code{> 45}) and 
+solar \code{Hour} (part of the day in which the accident occurred, with 2 levels: \code{morning}, \code{afternoon}).
+
+Data are  in an aggregated case form where the last column stores the counts for each configuration of the variables.
+As an example, look at the first 20 rows of the data frame \code{accident}
+
 <<echo=FALSE>>=
 options(prompt = "R> ", continue = "+  ", width = 80, useFancyQuotes = FALSE)
 @
 <<>>=
 library("hmmm")
 data("accident", package = "hmmm")
+accident[1:20,]
+@
+
+Note that in \pkg{hmmm}, the variables have to be denoted by integers, the lower the number identifying
+the variable, the faster its categories change in the vectorized
+contingency table. 
+As an example, in the data frame \code{accident},  the categories of variable \code{Type} change faster so in  \pkg{hmmm} \code{Type} is var.~1. Variable \code{Time} changes after \code{Type} so \code{Time} is  var.~2, \code{Age} varies afterwards \code{Type} and \code{Time}  so it is var.~3, and \code{Hour}  is  var.~4.
+
+Now we show  how to get a vector of labeled frequencies from the data frame \code{accident}. 
+The length of the row names is controlled by the \code{st} argument. Row names  identify the  cells of the contingency table and are used in the
+outputs displaying estimated cell probabilities. Only the first three rows are printed to give an example
+<<>>=
 y <- getnames(accident, st = 9)
 @
-The length of the row names is controlled by the \code{st} argument.
-Row names  identify the  cells of the contingency table and are used in the
-outputs displaying estimated cell probabilities.
-Only the last twelve rows are printed to give an example.
 <<echo=FALSE>>=
-count<-cbind(row.names(y)[61:72],y[61:72])
+count<-cbind(row.names(y)[1:3],y[1:3])
 colnames(count)<-c("cell names", "counts")
 print(count,quote=F)
 @
-Let us start by defining a saturated HMM model, i.e., a model without any restrictions on the
+In general, the data can be also organized in a data frame with a separated row for each case or in a contingency table form, but for using the command \code{getnames} in these cases, the data have to be coerced into the aggregated case form.
+
+We can now define, estimate and test HMM models for these data. Let us start by defining a saturated HMM model, i.e., a model without any restrictions on the
 interactions.
-First, the list of the marginal sets has to be declared and the command \code{marg.list()} serves the need.
+
+As mentioned in Section 2, for defining a HMM model, first the sequence of marginal sets and the type of logit assigned to each variable within the sets have to be declared. The command \code{marg.list()} serves this need.
 Here, with respect to the
-\code{accident} data, it
-defines the bivariate distribution
+\code{accident} data, the chosen marginal sets are: the bivariate distribution
   of the variables 3, 4; the two joint distributions of the  variables 1, 3, 4
-  and 2, 3, 4 and the joint distribution of the four variables. The symbol \code{b} 
-  states that all the
+  and 2, 3, 4 and the joint distribution of the four variables.  For each variable in a marginal set the corresponding logit symbol is inserted (\code{b} baseline, \code{g} global, \code{c} continuation, \code{rc} reverse continuation, \code{r} recursive, \code{l} local), while the variables not included in the marginal set are denoted by \code{marg}.  So, for example, in the statement below, \code{"marg-marg-b-b"} indicates the first marginal set involving variables 3, 4  both with baseline logits. In this example, all the
 log-linear interactions in every
 marginal set are of baseline type (Sections~\ref{sec:s4} and~\ref{sec:s5} are devoted to illustrate the use of more general types of
- interactions).
-The second statement uses the function \code{hmmm.model()} to define the HMM model. In the input arguments,
-as well as the marginal sets, information on the number of categories and on the names of the variables
-involved is specified.  The output illustrates how the interactions
-are allocated according to the principles of hierarchy and completeness.
+ interactions)
 <<>>=
 margin <- marg.list(c("marg-marg-b-b", "b-marg-b-b", 
 "marg-b-b-b", "b-b-b-b"))
+@
+The function \code{hmmm.model()} in the next statement defines the HMM model and creates the list of interactions on the marginal distributions declared by \code{marg.list()}.
+In the arguments of \code{hmmm.model()}, as well as \code{marg} to which the output of \code{marg.list()} is assigned, information on the number of categories \code{lev} and on the \code{names} of the variables in the stated order
+are also given  
+<<>>=
 model <- hmmm.model(marg = margin, lev = c(3, 4, 3, 2),
 names = c("Type", "Time", "Age", "Hour"))
 model
 @
+
+The output lists the parameters of the model (elements of the parameter vector $\b \eta$ described in Section~\ref{sec:s2}) and illustrates how they
+are allocated according to the principle of hierarchy and completeness. In particular, the first two columns (\code{inter.}, \code{inter.names}) indicate the interactions through integers and the names of the variables they refer to,  columns 3 and 4 describe the marginal distributions (\code{marg.}, \code{marg.names}) where the interactions are defined, the \code{type} of logit assigned to the involved variables are specified in column 5, the number (\code{npar}) of interactions  is displayed in column 6 and the first and last positions they occupy in the vector of parameters are indicated in the last two columns \code{start}, \code{end}. For example, the first row of the output reveals that interactions \code{3}, related to var.~3 \code{Age}, are defined within the marginal distribution \code{34} of variables \code{Age,Hour}. They are two (\code{2} in column \code{npar}) baseline type (\code{b}) logits which occupy the first two positions (\code{1} in column \code{start}, \code{2} in column \code{end}) in the vector of ordered parameters of the model. The two logits are calculated on the conditional distribution of var.~3 given that var.~4 assumes the reference category. Moreover, in the third row, the two interactions \code{34} in 4th and 5th positions are  baseline (\code{bb}) log-odds ratios. These interactions are  defined in the first marginal distribution \code{34}, so that, for the principle of hierarchy and completeness, they cannot be defined in the successive marginal distributions  \code{134}, \code{234}, \code{1234}. The rest of the output is interpreted similarly.
+
+
+Once the parameters of the model are known, we can specify how to constrain them for satisfying some hypotheses.
 A non-saturated model can be defined by imposing equality constraints on certain interactions.
 For example, we can set to zero the interactions that occupy the positions
-$12:13,\:14:17$ (reported in the last two columns of the previous output) in the vector of the parameters in order to state that
-the conditional independence $1 \ci 4 \mid 3$ holds for the variables in the \code{accident} data.
+\code{12:13}, \code{14:17} (reported in the columns \code{start}, \code{end} of the previous output) in the vector of the parameters in order to state that
+the conditional independence $1 \ci 4 \mid 3$ holds for the variables at hand.
 This can be achieved by specifying the argument \code{sel} of the
 \code{hmmm.model()} function
 <<>>=
@@ -148,11 +244,12 @@ names = c("Type", "Time", "Age", "Hour"),
 sel = c(12:13, 14:17))
 @
 The model is then estimated by the command
-\code{hmmm.mlfit()}
+\code{hmmm.mlfit()} whose arguments are the vector of data frequencies and the model
 <<>>=
 modB <- hmmm.mlfit(y, modelB)
 modB
 @
+The model shows a good fit. 
 Further, estimated parameters can be printed by the following statement
 <<eval=FALSE>>=
 print(modB, aname = "model B", printflag = TRUE)
@@ -162,6 +259,9 @@ A much more detailed output with estimated standard errors and
 <<eval=FALSE>>=
 summary(modB)
 @
+Note that, the command \code{summary()} shows also the uncostrained estimates of parameters calculated on the sample frequencies, say \code{OBS LINK}. It may happen that certain sample frenquencies are null thereby implying that some estimates cannot be determined, and in this case, the \code{summary()} of the model displays \code{NaN} in the columns \code{OBS LINK} and \code{LINK RESID}. 
+
+
 When the constrained interactions
  are log-linear parameters defined in the joint distribution \citep{agresti_2012},
 it is convenient to use  the argument \code{formula} of the
@@ -169,10 +269,9 @@ it is convenient to use  the argument \code{formula} of the
 interactions we impose to be zero.
 For example, if in addition to the previous
  constraints, we would like to verify also whether 
- the odds ratios of the distribution of
- \code{Type} and \code{Time} do not depend on the levels of \code{Age} and
+ the odds ratios  of  \code{Type} and \code{Time}, in the joint distribution, do not depend on the levels of \code{Age} and
 \code{Hour}, we must set to zero the
-interactions of the second and third order arranged in the positions from 42 to 71.
+interactions of the third and fourth order arranged in the positions from 42 to 71.
 These log-linear interactions are defined in the joint
 distribution and we can use
 the statements
@@ -187,10 +286,11 @@ by the function \code{anova()}
 <<>>=
 anova(modA, modB)
 @
+The last row of the \code{anova()} reports the likelihood ratio test of hypothesis $H_0:$ \code{modelA} versus $H_1:$ \code{modelB}, and in this case, it reveals that the more parsimonious \code{modelA} cannot be rejected. First and second rows show the goodness-of-fit of both models tested against the saturated model, already displayed in the output of \code{hmmm.mlfit()}.  
+
 Note that the previous \code{modelA} is not log-linear because some constrained interactions
 are defined in marginal distributions.
-On the contrary, the previous model without constraints on the marginal interactions is log-linear and can be defined 
-and estimated by the following statements
+On the contrary, if \code{modelA} is defined without constraints on the marginal interactions \code{12:13, 14:17}, it is log-linear and can be also defined by the specific function \code{loglin.model()} as follows
 <<eval=FALSE>>=
 modellog <- loglin.model(lev = c(3, 4, 3, 2),
 formula = ~ Type * Age * Hour + Time * Age * Hour + Type : Time,
@@ -199,115 +299,122 @@ modlog <- hmmm.mlfit(y, modellog)
 @
 
 
-\section{Generalized marginal interactions}\label{sec:s3}
-
+\section{Generalized marginal interactions}\label{sec:s4}
 
 In the previous section all the interactions defined within the marginal
-distributions are of log-linear type. \cite{barcolfor_2007}
+distributions are of baseline type. \cite{barcolfor_2007}
 have shown that more general types of interactions can be used to parameterize
 marginal models. This possibility is particularly useful because, 
 in presence of
 ordered categorical variables,  the univariate marginal
  distributions are parameterized more appropriately using non standard logits such as the global and continuation ones
- for example, or  bivariate distributions are parameterized by non
+ for example, and  bivariate distributions are parameterized by non
  standard odds ratios such as the global, global-continuation and the continuation
  ones. This extension is also important since several hypotheses of restrictive
- association and monotone dependence can be expressed by inequality constraints
- on these generalized interactions (in Section~\ref{sec:s5} the usefulness of these interactions for testing hypotheses
+ association and monotone dependence can be expressed by equality and inequality constraints
+ on these generalized interactions (in Section~\ref{sec:s8} the usefulness of these interactions for testing hypotheses
   of stochastic orderings is clarified).
-\cite{barcolfor_2007}, in particular, showed that the generalized marginal
-interactions within a marginal set can be defined by
-assigning a logit type to each
-variable of the marginal distribution.
-For example, if we use global logits for both variables in a bivariate
- distribution, then this distribution is parameterized by global logits and
- global log-odds ratios. If we assign continuation logits to one variable and global
-  logits to the other one, then we have a parameterization in terms of continuation
-   logits, global logits and continuation-global log-odds ratios.
 
+In this section, we will illustrate an example where HMM models with generalized marginal interactions are defined.
 
-The \code{marg.list()} command is used to make clear the logit types
+Remind that the \code{marg.list()} command is used to make clear the logit types
  assigned to the
 variables in a marginal distribution as any
 generalized interaction depends on them.
-The types of logit allowed in \pkg{hmmm} are baseline \code{b},
- local \code{l}, global \code{g},  
- continuation \code{c}
-and reverse continuation \code{rc}. 
-A different type of logit is discussed in the next section.
 
-For example, we consider the  \code{madsen} data \citep{madsen_1976} with variables:
-\code{Influence}   (var.~1 with 3 ordinal levels),
-\code{Satisfaction} (var.~2 with 3 ordinal levels),
-\code{Contact} (var.~3 with 2 levels),
-\code{Housing} (var.~4 with 4 levels).
+
+For example, we consider the  \code{madsen} data \citep{madsen_1976} concerning 1681 rental property residents who are classified according to the following variables: 
+feeling of \code{Influence} on the apartment management  (var.~1 with 3 ordinal levels: \code{low}, \code{medium}, \code{high}),
+\code{Satisfaction} with housing conditions (var.~2 with 3 ordinal levels: \code{low}, \code{medium}, \code{high}),
+degree of \code{Contact} with other residents (var.~3 with 2 levels: \code{low}, \code{high}),
+type of \code{Housing}  (var.~4 with 4 levels: \code{tower block}, \code{apartment}, \code{atrium house}, \code{terraced house}).
 
 For the \code{madsen} data, let us consider the statements
 <<>>=
 margin <- marg.list(c("marg-marg-l-l", "g-marg-l-l", 
 "marg-g-l-l", "g-g-l-l"))
+@
+
+This means that in the bivariate distribution of variables 3, 4 all the interactions are of local (\code{l}) type, while in the
+ joint distribution of 1, 3, 4 the interactions \code{1} are global (\code{g})
+ logits, the interactions  \code{13} and \code{14} are global-local (\code{gl}) log-odds ratios. In this
+ marginal distribution, the interactions \code{134} are differences between the logarithms
+of two global-local odds ratios. A similar comment holds for the joint
+distribution of the variables 2, 3, 4.
+
+The model is defined as
+<<>>=
 model <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4), 
 names = c("In", "Sa", "Co", "Ho"))
 model
 @
-This means that in the bivariate distribution of variables 3, 4 all the interactions are of local type, while in the
- joint distribution of 1, 3, 4 the interactions 1 are global
- logits, the interactions  13 and 14 are global-local log-odds ratios. In this
- marginal distribution, the interactions 134 are differences between the logarithms
-of two global-local odds ratios. A similar comment holds for the joint
-distribution of the variables 2, 3, 4.
 
-To test if there is an additive effect of variables 3 and 4 on the global logits
-of variables 1 and 2 in the marginal distributions 134 and 234, we can run the
+If there is an additive effect of variables 3 and 4 on the global (\code{g}) logits
+of variable 1 in the  marginal distribution \code{134}, the global-local-local (\code{gll}) interactions \code{18:23} in the above output must be  zero and if $2 \ci 3 \mid 4$,
+ that is the global (\code{g}) logits of var.~2 are not affected  by var.~3 in the marginal distribution  \code{234}, the global-local (\code{gl}) log-odds ratios  \code{26:27} and the global-local-local (\code{gll}) interactions \code{34:39} must be null. To define and fit the model under the mentioned hypotheses we can run the
  following statements
 <<>>=
-modelad1 <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4),
-names = c("In", "Sa", "Co", "Ho"), sel = c(18:23, 34:39))
+model1 <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4),
+names = c("In", "Sa", "Co", "Ho"), sel = c(18:23, 26:27, 34:39))
 data("madsen", package = "hmmm")
 y <- getnames(madsen, st = 6)
-modadd1 <- hmmm.mlfit(y, modelad1)
-modadd1
+mod1 <- hmmm.mlfit(y, model1)
+mod1
 @
-Moreover, to add the hypothesis that the global odds ratios of the  variables 1 and 2 do
-not depend on the levels of the other two  variables,  the ggl
- and ggll interactions, which 
- occupy the positions $44:71$ in the vector of parameters, must be 
+
+We try to improve the fitting of \code{model1} by removing the hypothesis $2 \ci 3 \mid 4$ but retaining the additive effect of variables 3, 4 on the global logits of variables 1 and 2  in the marginal distributions \code{134} and \code{234}, respectively. So the interactions in positions \code{26:27} are no longer null. This model is defined and estimated as follows
+<<>>=
+model2 <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4),
+names = c("In", "Sa", "Co", "Ho"), sel = c(18:23, 34:39))
+mod2 <- hmmm.mlfit(y, model2)
+mod2
+@
+The model fit is definitely improved.
+
+Moreover, to add the hypothesis that the global (\code{g}) log-odds ratios of the  variables 1 and 2 do
+not depend on the levels of variables 3 and 4,  the (\code{ggl})
+ and (\code{ggll}) interactions, which 
+ occupy the positions \code{44:71} in the vector of parameters, have to be 
 constrained to zero
 <<>>=
-modelad2 <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4),
+model3 <- hmmm.model(marg = margin, lev = c(3, 3, 2, 4),
 names = c("In", "Sa", "Co", "Ho"), sel = c(18:23, 34:39, 44:71))
-modadd2 <- hmmm.mlfit(y, modelad2)
-modadd2
+mod3 <- hmmm.mlfit(y, model3)
+mod3
 @
-For an alternative way of specifying other similar hypotheses see Section~\ref{sec:s6}
+This model has a reasonable fit.
+
+For an alternative way of specifying other similar hypotheses see Section~\ref{sec:s7}
 where the effect of covariates on interactions is taken into account.
 
 
-\section{Recursive marginal interactions}\label{sec:s4}
+\section{Recursive marginal interactions}\label{sec:s5}
+
+
 
 \cite{cazzaro_colombi_2013} extended  the class of generalized marginal interactions by
-introducing a new type of logit: the recursive (or nested) logit. In the
+introducing a new logit type: the recursive (or nested) logits. In the
 simplest case, these logits are defined in correspondence of a partition of the categories of a
  variable.
- As an example we consider the  \code{relpol} data, \citet[p.~24]{bergsma_croon_hagenaars_2009}, with var.~1
+ 
+ 
+A first set of logits contains the baseline logits defined on the probabilities of the sets of the partition (the reference set can be chosen arbitrarily). A second set includes the baseline logits which are defined
+within every set of the partition (the reference category can be chosen
+arbitrarily in every set).
+
+ 
+  As an example, we consider the  \code{relpol} data, \citet[p.~24]{bergsma_croon_hagenaars_2009}, on religion and political orientation of a sample of 911 U.S. citizens extracted from the General Social Survey, 1993,  with var.~1
  \code{Religion} with levels PR \code{Protestant}, CA \code{Catholic}, NO \code{None} and var.~2
 \code{Politics} with levels EL \code{Extremely liberal}, LI \code{Liberal}, SL \code{Slightly liberal},
 MO \code{Moderate}, SC \code{Slightly conservative}, CO \code{Conservative}, EC \code{Extremely conservative}.
 For \code{Religion} we consider the partition with sets {\it R=\{{\rm PR, CA}\}},
-{\it N=\{{\rm NO}\}} and for \code{Politics} the partition in the sets
+{\it N=\{{\rm NO}\}} in order to distinguish between religious and non-religious citizens and for \code{Politics} we highlight the partition in the sets
 {\it L=\{{\rm EL, LI, SL}\}}, {\it M=\{{\rm MO}\}}
-and {\it C=\{{\rm SC, CO, EC}\}}.
+and {\it C=\{{\rm SC, CO, EC}\}}. Note that we introduce the sets {\it L} and {\it C} as aggregation of categories following an obvious ideological similarity criterion (`Liberals' and `Conservatives'). 
 
-A first set of logits contains the baseline logits which are defined
-within every set of the partition (the reference category can be chosen
-arbitrarily in every set). For example, this kind of recursive logits for
- \code{Religion} and \code{Politics} are: $log[pr({\rm CA})/pr({\rm PR})]$ and
-$log[pr({\rm EL})/pr({\rm LI})]$, $log[pr({\rm SL})/pr({\rm LI})]$, $log[p({\rm SC})/p({\rm CO})]$,
-$log[pr({\rm EC})/pr({\rm CO})]$, respectively. A second set includes the baseline logits defined on the probabilities of
-the sets of the partition (the reference set can be chosen arbitrarily).
-Considering the \code{relpol} data, the recursive logits of the variables
-\code{Religion} and \code{Politics} in this case are: $log[pr(N)/pr(R)]$
-and $log[pr(C)/pr(L)]$, $log[pr(M)/pr(L)]$, respectively.
+Given the proposed partition, the first recursive logit (with reference categories set {\it R}) of the variable \code{Religion} is $$log\left[\frac{pr(N)}{pr(R)}\right]$$ and the second recursive logit (reference category {\rm PR}) is $$log\left[\frac{pr({\rm CA})}{pr({\rm PR})}\right].$$
+ 
+Focusing on variable \code{Politics}, the first and the second recursive logits (with reference set {\it L}) defined on the probabilities between the sets of the partition are $$log\left[\frac{pr(C)}{pr(L)}\right] \quad\quad {\rm and} \quad\quad log\left[\frac{pr(M)}{pr(L)}\right];$$ the recursive logits defined within the sets of the partition are the following four logits $$log\left[\frac{pr({\rm EL})}{pr({\rm LI})}\right], \quad log\left[\frac{pr({\rm SL})}{pr({\rm LI})}\right], \quad log\left[\frac{pr({\rm SC})}{pr({\rm CO})}\right] \quad {\rm and} \quad  log\left[\frac{pr({\rm EC})}{pr({\rm CO})}\right],$$ respectively. Note that the reference category  is {\rm LI} for Liberals and {\rm CO} for Conservatives.
 
 The number of recursive logits is always equal to the number of categories minus
  one.
@@ -315,209 +422,278 @@ The use of interactions  based on recursive logits is requested in
 \code{marg.list()} by the use of \code{r}
 instead of 
 \code{b}, \code{l}, \code{g},
-\code{c} and \code{rc}.
+\code{c} and \code{rc}, (see Section~\ref{sec:s2} for details)
+
+<<>>=
+marginals <- marg.list(c("r-marg", "marg-r", "r-r"))
+@
+
 
 The recursive logits are specified by the function \code{recursive()}
 that requires an argument for every variable.
  The argument is \code{0} for every variable to which a recursive logit is not
- assigned otherwise it is a matrix. The rows of this matrix specify the
- categories whose probabilities appear in the numerator and denominator of every
-  recursive logit. In a row a  value \code{1} (\code{-1}) corresponds to the categories
-  whose probability is  cumulated in the numerator (denominator), \code{0} if the
-  category is not involved. Finally the output of \code{recursive()} must be
-  assigned to the argument \code{cocacontr} of \code{hmmm.model()}.
+ assigned otherwise it is a matrix. This matrix has as many rows as the number of recursive logits of the variable involved and columns equal to the number of the categories of the variable. In particular, the rows of this matrix specify the
+ categories whose probabilities appear in the numerator and denominator of the  recursive logits. In a row, a  value \code{1} (\code{-1}) corresponds to the categories
+  whose probability is  cumulated at the numerator (denominator), \code{0} if the
+  category is not involved. 
+  
+With reference to var.~1  \code{Religion}, the following are the statements defining matrix \code{rec1}
+<<>>=
+rec1 <- matrix(c(-1, -1,  1,
+               -1,  1,  0), 2, 3, byrow = TRUE)
+@
 
-With reference to the \code{relpol} data the necessary  statements are
+To the first row of matrix \code{rec1} is associated the first logit $log\left[pr(N)/pr(R)\right]$ of var.~1
+ \code{Religion} as it picks out the probabilities  $pr({\rm PR})$ and $pr({\rm CA})$  that are summed at the denominator and the probability $pr({\rm NO})$ at the numerator of the logit; second row identifies the second logit of var.~1 in a similar way. 
+
+These are the necessary statements to define matrix \code{rec2} for var.~2
+\code{Politics}  
 
 <<>>=
-marginals <- marg.list(c("r-marg", "marg-r", "r-r"))
-R1 <- matrix(c(-1, -1,  1,
-               -1,  1,  0), 2, 3, byrow = TRUE)
-R2<-matrix(c(-1, -1, -1,  0,  1,  1,  1,
+rec2<-matrix(c(-1, -1, -1,  0,  1,  1,  1,
              -1, -1, -1,  1,  0,  0,  0,
               1, -1,  0,  0,  0,  0,  0,
               0, -1,  1,  0,  0,  0,  0,
               0,  0,  0,  0,  1, -1,  0,
               0,  0,  0,  0,  0, -1,  1), 6, 7, byrow = TRUE)
-rec <- recursive(R1, R2)
+@
+
+The first row, for example, of matrix \code{rec2} identifies the categories whose probabilities  are cumulated at the denominator ($pr({\rm EL})$, $pr({\rm LI})$ and $pr({\rm SL})$) and at the numerator  ($pr({\rm SC})$, $pr({\rm CO})$ and $pr({\rm EC})$) of the first recursive logit $log\left[pr(C)/pr(L)\right]$ of var.~2
+\code{Politics}.  
+
+
+The matrices \code{rec1} and \code{rec2} are then the arguments of the function \code{recursive()} 
+<<>>=
+rec <- recursive(rec1, rec2)
+@
+
+
+Finally the output of \code{recursive()} must be
+  assigned to the argument \code{cocacontr} of \code{hmmm.model()}.
+Consider the following statements
+
+<<>>=
 model <- hmmm.model(marg = marginals, lev = c(3, 7), 
 names = c("Rel", "Pol"), cocacontr = rec)
 model
 @
 
+It is worthwhile to remember that the parameters of vector $\b \eta$ are defined by assigning a logit type to each variable (recursive type in this case) and higher-order interactions (as recursive log-odds ratios in this case) are defined as contrasts of the mentioned logits (for more details on higher-order recursive interactions see \cite{cazzaro_colombi_2013}). 
+The output shows that the vector  $\b \eta$ of $20$ parameters of the models is structured in the following way: the first two parameters are the recursive logits of var.~1
+ \code{Religion}; successively, the $6$ recursive logits of var.~2
+\code{Politics} are stated  and finally the $12$ recursive log-odds ratios of the two involved variables complete the parameterization of the model. 
+
+In particular, note that the first 8 elements of the vector $\b \eta$ are the previously presented logits in the order as we described them. This follows from the order of the rows of the \code{rec1} and \code{rec2} matrices.
 
 To exemplify the kind of hypotheses that can be modeled with recursive logits
- and to show 
-as well how linear constraints on marginal interactions  can be tested, let us consider the constraints:
-$log[pr({\rm EL})/pr({\rm LI})]$$=$$log[pr({\rm EC})/pr({\rm CO})]$ and $log[pr({\rm SL})/pr({\rm LI})]$$=$$log[p({\rm SC})/p({\rm CO})]$
+ and to show as well how linear constraints on marginal interactions  can be tested, let us consider the constraints
+ 
+\begin{equation}
+log\left[\frac{pr({\rm EL})}{pr({\rm LI})}\right]-log\left[\frac{pr({\rm EC})}{pr({\rm CO})}\right]=0 \label{5-8}
+\end{equation}
+\begin{equation}
+log\left[\frac{pr({\rm SL})}{pr({\rm LI})}\right]-log\left[\frac{pr({\rm SC})}{pr({\rm CO})}\right]=0 \label{6-7}
+\end{equation}
+ 
  stating that the distribution between extreme and moderate attitudes
 is the same within conservatives and liberals.
-The first condition equates the third and sixth recursive logit of \code{Politics} that
- occupy positions 5 and 8 in the vector of parameters, respectively.
-The second condition equates the fourth and fifth recursive logit that are
-in positions 6 and 7 in the vector of parameters.
-The hypotheses can be tested by assigning the following constraints matrix \code{Emat} to the
- argument \code{E} of the function \code{hmmm.model()}
+Condition (\ref{5-8}) equates the 3th and 6th recursive logits of \code{Politics} that
+ occupy positions 5 and 8 in the vector $\b \eta$ of parameters, respectively.
+Condition (\ref{6-7}) equates the 4th and 5th recursive logits that are
+in positions 6 and 7 in the vector $\b \eta$.
+Remind that in the \pkg{hmmm} package, equality constraints on HMM models are in the form  $\b E \b \eta= \b 0$. 
+
+
+
+Hence, the previous constraints can be defined by assigning the following constraints matrix \code{Emat} to the
+ argument \code{E} of the function \code{hmmm.model()}. Note that the  \code{Emat} matrix has 2 rows and 20 columns, the number of parameters.  Rows 1 and 2 are devoted to constraints (\ref{5-8}) and (\ref{6-7}), respectively: all the elements of \code{Emat} are zeros apart from a \code{1} in the 5th position   and a \code{-1} in the 8th position in the first row; the second row has a \code{1} in the 6th position and a \code{-1} in the 7th position
 
 <<>>=
-Emat <- cbind(matrix(0, 2, 4), matrix(c(0, 1, 1, 0, -1, 0, 0, -1), 2, 4), 
+Emat <- cbind(matrix(0, 2, 4), matrix(c(1, 0, 0, 1, 0, -1, -1, 0), 2, 4), 
 matrix(0, 2, 12))
 modelE <- hmmm.model(marg = marginals, lev = c(3, 7), 
 names = c("Rel", "Pol"), cocacontr = rec, E = Emat)
+@
+
+With reference to the \code{relpol} data, the following statements fit the model
+
+<<>>=
 data("relpol", package = "hmmm")
 y <- getnames(relpol, st = 4)
 modE <- hmmm.mlfit(y, modelE)
-print(modE, printflag = TRUE)
+print(modE)
+@
+
+The tested model has a good fit.
+
+
+\section{Repeated measures on the response variables}\label{sec:s6}
+
+Studies where the categorical response variable is observed for each subject repeatedly, 
+under various conditions or at several occasions, are very common in applications. 
+In this section, we show how \textit{repeated measures} can be treated using HMM models subject to equality constraints on marginal interactions.
+
+To this aim we consider an example discussed in Section 12.1.1 of \cite{agresti_2012} and we point out how the marginal logistic models there described can be reformulated as HMM models. 
+
+Table 12.1 in \citet[p.~456]{agresti_2012} refers to a longitudinal study of mental depression \citep{koch1977} for 340 subjects suffering depression classified in four groups according to whether the severity of initial diagnosis is mild or severe and whether the treatment gives standard or new drugs. The study observed the depression assessment of the patients at 3 time occasions ($t=1,2,3$) after treatment. So, there are three response variables: \code{R1:} \code{Depression at t=1}, \code{R2:} \code{Depression at t=2}, \code{R3:} \code{Depression at t=3}, with  levels: \code{normal}, \code{abnormal}, and two covariates: \code{T: Treatment}
+ (with  levels: \code{standard}, \code{new drug}) and \code{D: Diagnosis} (with  levels: \code{mild}, \code{severe}). The data are available in the data frame \code{depression}
+<<>>=
+data("depression", package="hmmm")
+y <- getnames(depression, st = 9)
+@ 
+ Note that, coherently with the table of data reported in the Agresti's book, in the data frame \code{depression}, the counts are arranged in such a way that \code{R3},  \code{R2} and \code{R1} are var.~1, var.~2 and var.~3, respectively, and  var.~4, var.~5 are the covariates \code{Treatment} and \code{Diagnosis}.   
+
+ 
+Agresti proposes a first marginal model to fit these data  
+$$M_1: l_{tij}=\alpha+\beta_i^{T}+\beta_j^{D}+\beta t$$ where $l_{tij}$ is the logit of  the response at occasion $t$,  $t=1,2,3$, given the categories $i$ of \code{Treatment}  ($i=0$ for \code{standard drug} and $i=1$ for \code{new drug}), and $j$ of \code{Diagnosis} ($j=0$ for \code{mild} and $j=1$ for \code{severe}); $\beta_i^{T}$ and $\beta_j^{D}$ are the main effects of the covariates with a reference category coding $\beta_0^{T}=0$, $\beta_0^{D}=0.$ 
+
+Model $M_1$ is a special case of the saturated logit model $$M: l_{tij}=\alpha_t+ \beta_{ti}^{T}+\beta_{tj}^{D}+\beta_{tij}^{T,D}$$ obtained under 
+ the eight constraints
+ \begin{equation} \label{constrM1a}\beta_{t1}^{T}-\beta_{11}^{T}=0, \quad \beta_{t1}^{D}-\beta_{11}^{D}=0, \quad \beta_{t11}^{T,D}=0, \quad t=1,2,3,\end{equation}
+ \begin{equation} \label{constrM1b}\alpha_3-2\alpha_2+\alpha_1=0.\end{equation}
+ 
+Constraints (\ref{constrM1a}) state that the effects of the covariates are additive and do not differ by time occasion. Moreover, under constraints (\ref{constrM1a}) and (\ref{constrM1b}), the logits $l_{tij}$ are linear function of time.
+ 
+Agresti provides a second model which permits the treatment effect to differ by time occasion,  $$M_2: l_{tij}=\alpha+\beta_{0i}^{T}+\beta_j^{D}+\beta t+\beta_{1i}^{T}t, \quad t=1,2,3.$$
+
+Model $M_2$ is obtained  by imposing to $M$ the seven constraints
+\begin{equation}\beta_{31}^{T}-2\beta_{21}^{T}+\beta_{11}^{T}=0, \quad \beta_{t1}^{D}-\beta_{11}^{D}=0, \quad \beta_{t11}^{T,D}=0, \quad t=1,2,3,\label{constrM2a}\end{equation}
+ \begin{equation}\alpha_3-2\alpha_2+\alpha_1=0.\label{constrM2b}\end{equation}
+
+Since models $M_1$ and $M_2$ are logistic models, specified on the marginal distribution of each response $1, 2, 3$ and two covariates $4, 5$, we need to insert $\{1,4,5\}$, $\{2,4,5\}$, $\{3,4,5\}$ in the sequence of marginal sets defining the corresponding HMM models. Moreover, we complete the ordered list of marginal sets by adding the full set $\{1,2,3,4,5\}$ which cannot be omitted, and the  set of the covariates $\{4,5\}$. In this way, all the interactions involving only the covariates will be defined in the first marginal distribution and only the interactions related to the association among the responses at the three time occasions will be defined in the joint distribution, by virtue of the hierarchy and completeness assumptions.
+
+Given the marginal sets,  the saturated marginal model for the five variables is defined by the codes
+<<>>=
+margin <- marg.list(c("marg-marg-marg-b-b","b-marg-marg-b-b",
+"marg-b-marg-b-b", "marg-marg-b-b-b","b-b-b-b-b"))
+name <- c("R3","R2","R1","T","D")
+modelsat<-hmmm.model(marg = margin, lev = c(2,2,2,2,2), names = name)
+modelsat
 @
 
 
-\section{Inequality constraints on interactions}\label{sec:s5}
+Note that, the parameters 
+$\alpha_t$,  $\beta_{t1}^{T}$, $\beta_{t1}^{D}$, $\beta_{t11}^{T,D}$ of \code{modelsat} related to the response at the last occasion ($t=3$) occupy the positions \code{4:7} in the table above, positions 
+\code{8:11} for the response at $t=2$ and \code{12:15} for $t=1$.
 
-Hypotheses of monotone dependence and positive/negative association between ordered categorical
-variables can be ascertained by testing marginal models with inequality constraints on certain interactions.
-We illustrate how to define, fit and test models with parameters constrained by inequalities using the dataset
-\code{polbirth}, \citet[p.~30]{bergsma_croon_hagenaars_2009}.
+Thus, the constraints which specify both models $M_1$ and $M_2$ involve only the 12 interactions listed from the 4th to the 15th position. For example  $\alpha_3-2\alpha_2+\alpha_1=0$ constrains the 4th, 8th and 12th parameters; $\beta_{21}^{T}-\beta_{11}^{T}=0$ and $\beta_{31}^{T}-\beta_{11}^{T}=0$ 
+involve the 5th, 9th and 13th parameters; the constraints $\beta_{21}^{D}-\beta_{11}^{D}=0$ involve the 6th, 10th and 14th parameters; $\beta_{t11}^{T,D}=0$, $t=1,2,3$, refers to 7th, 11th and 15th parameters. 
 
 
+For specifying $M_1$ and $M_2$ in terms of HMM models, we cannot use the argument \code{sel} in the function \code{hmmm.model}, because  the constraints of $M_1$ and $M_2$ are not all 
+zero restrictions on single parameters. This is the reason why we  specify the constraints on the interactions in the form $\b E \b \eta = \b 0$ (the vector $\b \eta$ here contains the parameters of \code{modelsat}). Below we give the  details of the construction of the matrix 
+$\b E$ for both models. 
 
-In the dataset \code{polbirth} involving data on political orientation and opinion on 
-teenage birth control, var.~1 is \code{Politics} with categories: \code{Extremely liberal}, \code{Liberal}, \code{Slightly liberal},
-\code{Moderate}, \code{Slightly conservative}, \code{Conservative}, \code{Extremely conservative} and var.~2 is \code{Birth} with
- categories \code{Strongly agree}, \code{Agree}, \code{Disagree}, \code{Strongly disagree}.
-
-With these variables, for example, we can test the hypothesis that the distributions of \code{Politics}, given the levels
-of \code{Birth}, are ordered according to the simple dominance criterion coherently with the strength
-of the opinion on \code{Birth} control. This hypothesis is equivalent to
-require that all the global-local log-odds ratios are non-negative. Continuation-local or local log-odds ratios can
-be constrained to consider successively stronger notions of monotone dependence (uniform and likelihood ratio stochastic
-orderings), see
-\cite{dardanoni_forcina_1998} and \cite{shaked_shanthikumar_1994}.
-
-Let us test the simple monotone dependence of \code{Politics} on \code{Birth}.
-
-The marginal sets, the logit types and the labels of the variables are declared below
-
+For $M_1$, the matrix $\b E_1$ has 31 columns as the number of parameters in \code{modelsat} and 8 rows as the number of the constraints (\ref{constrM1a}) and (\ref{constrM1b}). Remind that among those 31 parameters, only the 12 interactions listed from the 4th to 15th position, are involved and they are here arranged in the sub-vector $\b \eta_1$ for simplicity. Thus, we need to define the sub-matrix $\b A_1$ with 8 rows, one row for each constraint of $M_1$, and 12 columns, one for each parameter in $\b \eta_1$ such as the equation $\b A_1 \b \eta_1 = \b 0$ reproduces the constraints (\ref{constrM1a}) and (\ref{constrM1b}). At this point, we can define the matrix $\b E_1$ as a three blocks matrix with a zero-values matrix in the first and third blocks (columns 1-3 and 16-31 of $\b E_1$) corresponding to unconstrained parameters, and the matrix $\b A_1$ as a middle block (columns 4-15 of $\b E_1$). In details, we write 
 
 <<>>=
-data("polbirth", package = "hmmm")
-y <- getnames(polbirth)
-marginals <- marg.list(c("g-marg", "marg-l", "g-l"))
-names <- c("Politics", "Birth")
+A1<-matrix(c(
+   0,0,0,1,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,1,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,1,
+   0,1,0,0,0,0,0,0,0,-1,0,0,
+   0,0,0,0,0,1,0,0,0,-1,0,0,
+   0,0,1,0,0,0,0,0,0,0,-1,0,
+   0,0,0,0,0,0,1,0,0,0,-1,0,
+   1,0,0,0,-2,0,0,0,1,0,0,0
+   ),8,12,byrow=TRUE)
+
+E1<-cbind(matrix(0,8,3), A1, matrix(0,8,16))
 @
 
-The interactions subject to inequality constraints, the marginal set where they are defined and the types of logit used
-for each variable are listed as follows, so that the log-odds ratios of global-local types are the interactions to be constrained
+Now we can define and fit model $M_1$ by assigning \code{E1} to the argument \code{E} of the function \code{hmmm.model()}
 
 <<>>=
-ineq <- list(marg = c(1, 2), int = list(c(1, 2)), types = c("g", "l"))
+model1<-hmmm.model(marg = margin, lev =c(2,2,2,2,2), names = name, E = E1)
+
+fitmod1 <- hmmm.mlfit(y, model1)
+fitmod1
+@
+ The fit is really poor as highlighted by Agresti because the model is based on the assumption that the time effect does not vary by treatment. This hypothesis is removed in model $M_2$.
+
+The matrix $\b E_2$ computed below follows the same reasoning just detailed and here defines the constraints (\ref{constrM2a}) and (\ref{constrM2b}) of $M_2$
+<<>>=
+A2<-matrix(c(
+    0,0,0,1,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,1,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,1,
+    0,1,0,0,0,-2,0,0,0,1,0,0,
+    0,0,1,0,0,0,0,0,0,0,-1,0,
+    0,0,0,0,0,0,1,0,0,0,-1,0,
+    1,0,0,0,-2,0,0,0,1,0,0,0),
+    7,12,byrow=TRUE)
+
+E2<-cbind(matrix(0,7,3), A2, matrix(0,7,16))
 @
 
-The marginal model with inequalities on global-local interactions is defined using the function \code{hmmm.model()}
-where \code{ineq} is assigned to the argument \code{dismarg}
+We can now define and fit model $M_2$ using \code{E2} as argument in the next statement
 
 <<>>=
-model <- hmmm.model(marg = marginals, dismarg = ineq, lev = c(7, 4), 
-names = names)
+model2<-hmmm.model(marg = margin, lev = c(2,2,2,2,2), names = name, E = E2)
+
+fitmod2 = hmmm.mlfit(y, model2)
+fitmod2
 @
 
-More than one list, like that specified in \code{ineq}, can compose \code{dismarg} if interactions
-defined in different marginal distributions have to be constrained (see details in the help of
- the \code{hmmm.model()} function).
-
-The model with non-negative global-local log-odds ratios (simple monotone dependence model) is estimated with the
-function \code{hmmm.mlfit()} where the input \code{noineq} is declared \code{FALSE}
-
+This model fits much better.
+ 
+ We complete the section by specifying and fitting a further model, not considered by Agresti. It is obtained by assuming that in $M_2$ it  also holds
+  that the depression assessment at the last time \code{R3} is independent of its severity at the first occasion \code{R1} given the intermediate response \code{R2} and the covariates \code{Treatment} and \code{Diagnosis}. 
+ 
+  The zero restrictions on the  interactions of \code{modelsat} which occupy the positions \code{17, 19, 21, 24, 26, 27, 29, 31}, that are needed to satisfy the just introduced Markov condition, constrain log-linear parameters defined in the joint distribution, so we can use the argument \code{formula} of the \code{hmmm.model()} function as explained in Section~\ref{sec:s3}.
+ The statements for this final model are reported below
 <<>>=
-mlr <- hmmm.mlfit(y, model, noineq = FALSE)
+model3<-hmmm.model(marg = margin, lev = c(2,2,2,2,2), names = name, E = E2,
+                   formula=~R1*R2*T*D+R3*R2*T*D )
+
+fitmod3 = hmmm.mlfit(y, model3)
+fitmod3
 @
+The model shows a very good fit.
 
-If the previous inequality constraints are turned into equality, all the global-local log-odds ratios are null and the 
-corresponding model is the stochastic independence model
-
-<<>>=
-model0 <- hmmm.model(marg = marginals, lev = c(7, 4), sel = c(10:27), 
-names = names)
-mnull <- hmmm.mlfit(y, model0)
-@
-
-The model estimated without any inequality constraints on parameters is, in this case, the saturated model
-
-<<>>=
-msat <- hmmm.mlfit(y, model)
-@
-
-The fitted models are compared through the function \code{hmmm.chibar()}.
-The arguments of \code{hmmm.chibar()} are the estimated models with inequality constraints turned into equalities (\code{nullfit}),
-with inequality constraints (\code{disfit}) and without inequality constraints
-on parameters (\code{satfit}).
-
-<<>>=
-test <- hmmm.chibar(nullfit = mnull, disfit = mlr, satfit = msat)
-@
-
-Function \code{hmmm.chibar()} tests problems of type A and B, \citet[p.~61]{silvapulle_sen_2005}:
-the test of type A compares the  \code{nullfit} model under $H_0$ against the \code{disfit} model
-under $H_1$; while the type B problem means testing $H_0:$ \code{disfit} model  against $H_1:$ \code{satfit} model.
-The main difference between type A and type B problems is that inequalities are present in the alternative hypothesis
- of type A and in the null hypothesis of type B problems.
-
-The null distribution of the likelihood ratio statistic $G^2$ for or against inequality constraints turns out to be
-chi-bar-square, that is a mixture of chi-square distributions.
-Its tail probabilities are computed by simulation, the method {\it Simulation 2} described
-in \citet[p.~79]{silvapulle_sen_2005} is implemented.
-
-The output of \code{hmmm.chibar()} provides the values of the likelihood ratio statistics $G^2$ and 
-their simulated  $p$~values
- for both tests of type A and B.
-
-<<>>=
-test
-@
-
-A much detailed output is printed by \code{summary}.
-
-
-
-\section{Covariates effects on the response variables}\label{sec:s6}
+\section{Covariates effects on the response variables}\label{sec:s7}
 
 Different models can be estimated by taking into account the effects of covariates
 on the response variables as in \cite{marchetti_lupparelli_2011} and \cite{glonek_mccullagh_1995}.
 
-We consider the \code{accident} data, but note that, now, var.~1 \code{Type}
+Note that the models tested in this section are Glonek and McCullagh
+{\it multivariate logistic models} with categorical covariate variables.
+
+We consider the \code{accident} data (see Section~\ref{sec:s3} for details), but note that, now, var.~1 \code{Type}
 of the injury (3 levels), var.~2 \code{Time} to recover (4 ordinal levels) are considered
-as response variables and var.~3 \code{Age} of the
-worker (3 levels) and var.~4 solar \code{Hour} (2 levels) as covariates.
+as response variables, as they describe the nature of the accidents occurred to workers in terms of prevention and seriousness, and var.~3 \code{Age} of the
+worker (3 levels) and var.~4 solar \code{Hour} (2 levels) as covariates since \code{Age} can be considered as indicator of experience and \code{Hour} as indicator of tiredness of the worker.
 Remind that the lower the variable number, 
-the faster the variable sub-script changes in the
+the faster the variable changes in the
 vectorized table. Furthermore, the categories of the covariates determine the
-strata and the data must be arranged in such a way that the subscripts of the response variables change
-faster than the subscripts of the covariates.
+strata and the data must be arranged in such a way that the categories of the response variables change
+faster than the categories of the covariates.
 
 In order to estimate different models taking into account the covariate effects
 on the response variables, the list of the marginal sets of
- the response variables has to be specified (using \code{marg.list()}). With respect to the vector of
- counts from the \code{accident} data the necessary statement is
+ the response variables has to be specified (using \code{marg.list()}). The necessary statement is
 
 <<>>=
 marginals <- marg.list(c("b-marg", "marg-g", "b-g"))
 @
 
-It is stated that in the marginal distribution of \code{Type} the
+For the \code{accident} data, it is stated that in the marginal distribution of \code{Type} the
 interactions are baseline logits, in the marginal distribution of \code{Time} the
 interactions are global logits and in the bivariate distribution of \code{Type}
  and \code{Time} the interactions are baseline-global log-odds ratios.
 
-Successively, a list of components, each for every interaction specified above,
-defining the effects of the covariates on such interactions,
+Successively, a list of model formulas, each for every interaction specified above,
+defining the effects of the covariates,
 is needed.  The following statements account for additive effect of the
 covariates \code{Age} and \code{Hour} on  the marginal logits of the response
 variables \code{Type} and \code{Time} and on  the association (log-odds ratios)
-between the responses \code{Type} and \code{Time}.
+between the responses \code{Type} and \code{Time}
 <<>>=
 al <- list(
 Type = ~ Type * (Age + Hour),
 Time = ~ Time * (Age + Hour),
-Type.Time = ~ Type.Time * (Age + Hour))
+Type.Time = ~ Type.Time * (Age + Hour)
+)
 @
 
 It is worthwhile to note that each component of the list
@@ -530,7 +706,7 @@ arguments are included in \code{hmmm.model.X()}: the marginal sets (\code{marg})
 response variables (\code{names}), their number of
 categories (\code{lev}), the names of the covariate variables (\code{fnames}) and the
 number of their categories (\code{strata}) but, in particular, the main argument
-is \code{Formula} to which a list as \code{al} must be assigned.
+is \code{Formula} to which a list as \code{al} must be assigned
 
 <<>>=
 model <- hmmm.model.X(marg = marginals, lev = c(3, 4), 
@@ -543,11 +719,10 @@ The model is then estimated by the command \code{hmmm.mlfit()}
 
 <<>>=
 data("accident", package = "hmmm")
-y <- getnames(accident, st = 9, sep = ";")
-mod1 <- hmmm.mlfit(y, model, y.eps = 0.1)
+y <- getnames(accident, st = 9)
+mod1 <- hmmm.mlfit(y, model)
 mod1
 @
-
 
 More detailed output (the estimated effects and the estimated
 standard errors, among others) is given by 
@@ -569,7 +744,8 @@ marginal logits of the responses and the stochastic independence between
 alind <- list(
 Type = ~ Type * Age + Type * Hour,
 Time = ~ Time * Age + Time * Hour,
-Type.Time = "zero")
+Type.Time = "zero"
+)
 @
 
 We use \code{"zero"} to constrain to zero all the interactions of a
@@ -585,43 +761,206 @@ identical for each of the logits and the log-odds ratios of the responses \code{
 alpar <- list(
 Type = ~ Type + Age + Hour,
 Time = ~ Time + Age + Hour,
-Type.Time = ~ Type.Time + Age + Hour)
+Type.Time = ~ Type.Time + Age + Hour
+)
 @
 
-Note that the models tested in this section are Glonek and McCullagh
-{\it multivariate logistic models} with categorical covariate variables.
-
-\section{Further remarks}\label{sec:s7}
-
-The complete hierarchical marginal models, that can be analyzed with the 
-\pkg{hmmm} package, are a generalization of several models proposed in the
- literature of categorical data analysis. For example, {\it log-linear models}
-  are HMM models where all the interactions are defined within the joint
-   distribution (Section~\ref{sec:s2}). The \cite{bergsma_rudas_2002} {\it marginal models}
-    are HMM models where the interactions of log-linear type are defined in 
-    different marginal distributions (Section~\ref{sec:s2}). The models described in the 
-    other sections are extensions of the Bergsma-Rudas models involving more
-     general type of interactions. Finally, \cite{glonek_mccullagh_1995} 
-{\it multivariate logistic models} (see the examples of Section~\ref{sec:s6}) are HMM models
- which use all the marginal distributions  and the parameters are the highest 
- order interactions that can be defined within every  marginal distribution. 
 
 
-Note that the \pkg{hmmm} package can estimate the parameters of all the 
-previous models under inequality constraints. 
 
-Furthermore, that are other topics that this tutorial do not cover: (i) {\it hidden 
-Markov models} where the conditional distribution of several observed variables 
-and the transition probabilities of the latent chain can be specified by HMM models,
-see \cite{colombi_giordano_2011}; (ii) \cite{lang_2004}
- \textit{multinomial Poisson homogeneous models} that can
-  be estimated with the \pkg{hmmm} package also under inequality constraints. 
 
-\newpage
+\section{Inequality constraints on interactions}\label{sec:s8}
 
-\bibliography{Tutorial_bib}
+Hypotheses of monotone dependence and positive/negative association between ordered categorical
+variables can be ascertained by testing marginal models with inequality constraints on certain interactions.
+We illustrate how to define, fit and test models with parameters constrained by inequalities using the dataset
+\code{polbirth}, \citet[p.~30]{bergsma_croon_hagenaars_2009}, based on the U.S. General Social Survey, 1993.
 
-\vspace{4cm}
+
+In the dataset \code{polbirth} involving data on political orientation and opinion on 
+teenage birth control of a sample of 911 U. S. citizens, var.~1 is \code{Politics} with categories: \code{Extremely liberal}, \code{Liberal}, \code{Slightly liberal},
+\code{Moderate}, \code{Slightly conservative}, \code{Conservative}, \code{Extremely conservative} and var.~2 is \code{Birth} with
+ categories \code{Strongly} \code{agree}, \code{Agree}, \code{Disagree}, \code{Strongly disagree}.
+
+With these variables, for example, we can test the hypothesis that the distributions of \code{Politics}, given the levels
+of \code{Birth}, are ordered according to the simple dominance criterion coherently with the strength
+of the opinion on \code{Birth} control. This hypothesis is equivalent to
+require that all the global-local log-odds ratios are non-negative. Continuation-local or local log-odds ratios can
+be constrained to consider successively stronger notions of monotone dependence (uniform and likelihood ratio stochastic
+orderings), see
+\cite{dardanoni_forcina_1998} and \cite{shaked_shanthikumar_1994}.
+
+Let us test the simple monotone dependence of \code{Politics} on \code{Birth}.
+
+The marginal sets, the logit types and the labels of the variables are declared below
+
+
+<<>>=
+data("polbirth", package = "hmmm")
+y <- getnames(polbirth)
+marginals <- marg.list(c("g-marg", "marg-l", "g-l"))
+names <- c("Politics", "Birth")
+@
+
+The  marginal set \code{marg} where the interactions are defined, the interactions \code{int} subject to inequality constraints,  and the \code{types} of logit used
+for each variable are listed as follows, so that the log-odds ratios of global-local types are the interactions to be constrained
+
+<<>>=
+ineq <- list(marg = c(1, 2), int = list(c(1, 2)), types = c("g", "l"))
+@
+
+The marginal model with inequalities on global-local interactions is defined using the function \code{hmmm.model()}
+where \code{ineq} is assigned to the argument \code{dismarg}
+
+<<>>=
+model <- hmmm.model(marg = marginals, dismarg = ineq, lev = c(7, 4), 
+names = names)
+@
+
+More than one list, like that specified in \code{ineq}, can compose \code{dismarg} if interactions
+defined in different marginal distributions have to be constrained (see details in the help of
+ the \code{hmmm.model()} function).
+
+The model with non-negative global-local log-odds ratios (simple monotone dependence model) is estimated with the
+function \code{hmmm.mlfit()} where the argument \code{noineq} is declared \code{FALSE}
+
+<<>>=
+mlr <- hmmm.mlfit(y, model, noineq = FALSE)
+@
+
+Note that if \code{noineq = TRUE} (the default) inequality constraints are ignored.
+The model estimated without any inequality constraints on parameters is, in this case, the saturated model
+
+<<>>=
+msat <- hmmm.mlfit(y, model)
+@
+
+If the  inequality constraints are turned into equality, all the global-local log-odds ratios are null and the 
+corresponding model is the stochastic independence model
+
+<<>>=
+model0 <- hmmm.model(marg = marginals, lev = c(7, 4), sel = c(10:27), 
+names = names)
+mnull <- hmmm.mlfit(y, model0)
+@
+
+
+
+The fitted models are compared through the function \code{hmmm.chibar()}.
+The arguments of \code{hmmm.chibar()} are the estimated models with inequality constraints turned into equalities (\code{nullfit}),
+with inequality constraints (\code{disfit}) and without inequality constraints
+on parameters (\code{satfit})
+
+<<>>=
+test <- hmmm.chibar(nullfit = mnull, disfit = mlr, satfit = msat)
+@
+
+Function \code{hmmm.chibar()} can be only used to test problems of type A and B, \citet[p.~61]{silvapulle_sen_2005}:
+the test of type A compares the  $H_0:$ \code{nullfit} model  against the $H_1:$ \code{disfit} model; while the type B problem means testing $H_0:$ \code{disfit} model  against  $H_1:$ \code{satfit} model.
+The main difference between type A and type B problems is that inequalities are present in the alternative hypothesis
+ of type A and in the null hypothesis of type B problems.
+ To compare nested models without inequality constraints the function \code{anova()}, introduced in Section~\ref{sec:s3}, has to be used.
+
+The null distribution of the likelihood ratio statistic for or against inequality constraints turns out to be
+chi-bar-square, that is a mixture of chi-square distributions.
+Its tail probabilities are computed by simulation, the method {\it Simulation 2} described
+in \citet[p.~79]{silvapulle_sen_2005} is implemented in \code{hmmm.chibar()} as default. Alternatively, if the number of inequality constraints is not large, $(<=15)$, the tail probabilities can be exactly computed  by the Kudo's method, \citep[p.~83]{silvapulle_sen_2005}, by setting the argument \code{kudo} of \code{hmmm.chibar()} equal  to \code{TRUE}.
+
+The output of \code{hmmm.chibar()} provides the values of the likelihood ratio statistics 
+and 
+their   $p$~values
+ for both tests of type A and B
+
+<<>>=
+test
+@
+In this case, \code{testA} rejects the \code{nullfit} model in favour of  \code{disfit} model, and \code{testB} does not reject \code{disfit} model versus the saturated model. Therefore, the model under inequalities seems to suit the data.
+A more detailed output is printed by \code{summary}.
+
+\section{MPH models under inequality restrictions}\label{sec:s9}
+
+The \pkg{hmmm} package can handle Lang \textit{multinomial Poisson homogeneous models}
+ subject to inequality constraints \citep[see][]{cazzaro_colombi_2009} through the function \code{mphineq.fit}.
+
+The MPH models are characterized by an independent sampling plan and a system of equality and/or inequality 
+homogeneous constraints on the vector of expected table counts. The sampling scheme can be a product of Poisson and/or multinomial 
+random variables.
+
+To give 
+an example, we refer to \cite{lang_2004} that investigated citation patterns in three journals  of statistics and probability
+ (Journal of the American Statistical Association JASA, Biometrics BMCS, The Annals of Statistics ANNS). Let $(i,j)$ be a 
+ cross-citation, where $i$ is the journal of the citing article (1=JASA, 2=BMCS, 3=ANNS) and $j$ is the journal of the 
+ cited article (1=JASA, 2=BMCS, 3=ANNS). In particular, we consider the observed counts of Table 2 - ``1999 statistics 
+ journals citation pattern counts," \citet[p.~349]{lang_2004}
+
+<<>>=
+y <- matrix(c(104, 24, 65, 76, 146, 30, 50, 9, 166), 9, 1)
+@
+Note that the frequency of cross-citation $(i,j)$ of Lang's table enters the vector \code{y} in position $3(i-1)+j$.
+The sampling scheme can be described by two matrices, \code{Z} and \code{ZF}. The number of strata are 
+established by the number of columns of the population matrix \code{Z} that is a zero-one matrix having 
+as many rows as the number of counts. A \code{1} in row $c$ and column $s$ means that the cth count comes from the sth stratum.
+The columns of \code{ZF}, the sample constraints matrix, are the subset of the columns in \code{Z} corresponding 
+to the multinomial strata with fixed sample size (see details in the help of the \code{mphineq.fit()} function).
+
+With respect to the previous example, the following statements
+
+<<>>=
+Zmat <- kronecker(diag(3), matrix(1, 3, 1))
+ZFmat <- kronecker(diag(3), matrix(1, 3, 1))[,3]
+@
+
+mean that the population matrix \code{Z} involves 3 strata with 3 observations each and that the third stratum
+ sample size is considered as fixed.
+
+
+Lang makes inference on some functions of the $m_{ij}$s, the expected counts of cross-citations.
+He considers the Gini concentrations of citations for each of the journals: $G_i=\sum_{j=1}^3(m_{ij}/m_{i+})^2,$ $i=1,2,3$. 
+The hypothesis tested by Lang considers equal Gini concentrations in the strata, $G_1 - G_2=0$ and $G_3 - G_1=0$.
+The following statement builds the Gini indices for each of the journals and calculates the constraints on them
+
+<<>>=
+Gini <- function(m) {
+A<-matrix(m,3,3,byrow=TRUE)
+ GNum<-rowSums(A^2)
+ GDen<-rowSums(A)^2
+ G<-GNum/GDen
+ c(G[1], G[3]) - c(G[2], G[1])
+ }
+@
+
+
+The model can then be estimated by the command \code{mphineq.fit()}
+assigning the function \code{Gini()} to the argument \code{h.fct}. Note that the  command \code{mphineq.fit()} 
+includes several arguments: the observed counts (\code{y}), the population matrix (\code{Z}), the sample 
+constraints matrix (\code{ZF}), the function for the equality (\code{h.fct}) or inequality (\code{d.fct}) 
+constraints, among others
+
+<<>>=
+mod_eq <- mphineq.fit(y, Z = Zmat, ZF = ZFmat, h.fct = Gini)
+@
+
+One hypothesis of interest, proposed (but not tested) by Lang himself, is to consider that there is more concentration 
+in ANNS than in the other two journals.
+This is an example of MPH model subject to inequality constraints: $G_1 - G_2 > 0, G_3 - G_1 >0$. 
+The model is again defined through the function \code{mphineq.fit()} where the function \code{Gini()} is now assigned to the argument \code{d.fct}
+
+<<>>=
+mod_ineq <- mphineq.fit(y, Z = Zmat, ZF = ZFmat, d.fct = Gini)
+@
+
+The fitted models can be, finally, compared through the function \code{hmmm.chibar()}, already illustrated in Section~\ref{sec:s8}. 
+In this context, it is worthwhile to note that the reference model without inequality constraints corresponds to the saturated model
+
+<<>>=
+mod_sat <- mphineq.fit(y, Z = Zmat, ZF = ZFmat)
+hmmm.chibar(nullfit = mod_eq, disfit = mod_ineq, satfit = mod_sat)
+@
+Evidently, the model of common Gini concentrations (\code{mod_eq})  is untenable as we deduced from \code{testA}, coherently with Lang results. The outcome of \code{testB} is in favour of \code{mod_ineq}, it then appears that there is more concentration in ANNS than in the other two journals as supposed by Lang.
+
+
+\bibliography{bibJSS}
+
 
 \end{document}
 

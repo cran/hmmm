@@ -46,7 +46,7 @@ with categories k_1, k_2, the joint frequencies y = {y_ij}, where i=1,...,k_1, j
 are arranged in a vector so that the subscript i changes faster than j. If \code{strata} is greater than one, the
 vectorized contingency tables must be entered strata by strata. So that, for example, if the variables are distinguished in 
 responses and covariates, the categories of the covariates determine the strata and the data are arranged 
- in such a way that the subscript of the response variable changes faster than the subscript of covariate. The names of the variables in \code{names} must be declared according to the order of the variables.  
+ in such a way that the categories of the response variable changes faster than the categories of covariate. The names of the variables in \code{names} must be declared according to the order of the variables.  
 
 The list \code{marg} of the marginal sets of a complete hierarchical marginal parameterization, together with the types of logits for the variables,
 must be  created by the function `marg.list'. See the help of this function for more details.

@@ -14,7 +14,8 @@ start.time <- proc.time()[3]
 version <- "mphineq.fit, version 1.0.1, 5/10/06"
 Zlist<-cocadise(Z,formula=formula,lev=lev,names=names)
 if(is.null(X)){X<-0}
-inv <- solve        
+inv <- ginv 
+#solve       
 y<-as.matrix(y) 
  
 lenh<-0
@@ -190,7 +191,12 @@ print("matrix in quadratic programming not positive def.")
 return("matrix in quadratic programming not positive def.")}	  
 	   	
 As<- solve.QP(qpmatr,t(Zlist$DMAT)%*%(y-m), Amat, bvec, meq=lenh, factorized=FALSE)
-	
+# -------------------------------------------------------------------------------
+
+if(is.null(As)){
+print("Error in solve.QP")
+break}
+#-------------------------------------------------------------------------------------	
 #function used by optimize
 
  ff.fct<-function(steptemp){

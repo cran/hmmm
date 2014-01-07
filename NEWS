@@ -14,3 +14,20 @@ Changes in Version 1.0-1
 
   o Revised the tutorial file
 
+
+Changes in Version 1.0-2
+
+ o Function akaike for selecting models is added
+
+ o A new dataset is inserted
+
+ o Function hmmm.chibar now has new arguments to handle also a new type of test and to calculate exact weights for the chi-bar distribution 
+
+ o Modified the convergence criterium for the estimates in the function hidden.emfit
+
+ o Revised the tutorial file
+
+
+
+ 
+  

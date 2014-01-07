@@ -3,7 +3,7 @@
 \alias{print.mphfit}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-summary and print for the class mphfit
+summary and print for the class \code{mphfit}
 }
 \description{The generic functions `summary' and `print' are adapted to the objects inheriting from class \code{mphfit}
 (summary.mphfit, print.mphfit) to display the results of the estimation of a mph model by `mphineq.fit'.}

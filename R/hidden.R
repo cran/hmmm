@@ -25,17 +25,17 @@ hidden.emfit.X<-function(y,model.obs,model.lat=NULL,nlat=1,
       noineq = TRUE, maxit = 10, maxiter=100, norm.diff.conv = 1e-05, 
     norm.score.conv = 1e-05, y.eps = 0,  mup = 1, step = 1,printflag=0,old.tran.p=NULL,
 bb=NULL,q.par=q.par)
-{
+{Nobs<-dim(y)[1]
+
 #-------------------------------------------------------------------
 #CORPO FUNZIONE
 #INIZIALIZZAZIONE
-#modaltà osservate più latenti
+#modalità osservate più latenti
 if(!class(model.lat)=="hmmmmod"){
 ######---------------------------######
 #0ld nstrata<-model.obs$modello$livelli[1]
 
 #newNEWS
-
 nstrata<-model.obs$lev.strata
 nlat<-length(nstrata)
 marglat<-paste(rep("l",2*nlat),collapse="-")
@@ -93,7 +93,7 @@ oggi<-gl(strata,dim(y)[1],dim(r)[1])
 r<-cbind(r,oggi)
 r<-as.data.frame(r)
 
-#inizializzo working data per letente attuale e ritardata
+#inizializzo working data per latente attuale e ritardata
 #la attuale varia più velocemente
 oggi<-gl(strata,1,strata^2*dim(y)[1])
 ieri<-gl(strata,strata,strata^2*dim(y)[1])
@@ -113,6 +113,7 @@ bb<-prop.table(bb,1)
 #bb<-matrix(bb,strata,length(bb),byrow=TRUE)
 #bb<- prop.table(bb,1)
 
+old.Ptobs<-bb
 ii<-cumprod(c(1,levobs[-1]))
 #ii<-t(apply(iiy,1,cumprod))
 #/(max(y[,1]-1,1))
@@ -146,7 +147,7 @@ Lold<-999999
 par.conv<-tran.conv<-L.conv<-99999999
 #EM iterations----------------------------------------------
 iter<-1
-while ( ((par.conv> norm.diff.conv)||(L.conv > norm.score.conv))
+while ( (  ((par.conv> norm.diff.conv)&(tran.conv> norm.diff.conv)  ) ||(L.conv > norm.score.conv))
      &(iter< maxiter))
    {
 
@@ -239,12 +240,14 @@ par.conv<-quantile(abs(newpar-oldpar),q.par)
 
 #par.conv<-mean(abs(newpar-oldpar))
 L.conv<-abs(Lnew-Lold)
-tran.conv<-quantile(abs(c(new.tran.p-old.tran.p)),1)
+tran.conv<-quantile(abs(c(new.tran.p-old.tran.p,Ptobs-old.Ptobs)),1)
 oldpar<-newpar
 old.tran.p<-new.tran.p
 Lold<-Lnew
+old.Ptobs<-Ptobs
 if(printflag > 0){
-if(iter%%printflag==0){ cat("loglik= ",Lnew," Lconv= ",L.conv, " parconv= ",par.conv, " niter= ",iter)
+if(iter%%printflag==0){ cat("loglik= ",Lnew," Lconv= ",L.conv, 
+" prob.conv= ",tran.conv, " niter= ",iter)
 cat("\n")
 }
 }
@@ -263,11 +266,11 @@ iter<-iter+1
 #dl<-dl[-c(strata:(2*strata-2)),]
 #dof<-(dim(model.obs$matrici$X)[1]+dim(model.lat$matrici$X)[1]-
 #dim(model.obs$matrici$X)[2]-dim(model.lat$matrici$X)[2])
-dof<-fit.obs$df+fit.lat$df
+####################################dof<-fit.obs$df+fit.lat$df
 fit.obs$Gsq<-Lnew
 fit.obs$Xsq<-NaN
 fit.obs$Wsq<-NaN
-fit.obs$df<-dof
+################################################fit.obs$df<-dof
 fit.lat$Gsq<-NaN
 fit.lat$Xsq<-NaN
 fit.lat$Wsq<-NaN
@@ -281,14 +284,12 @@ hmlist
 }
 
 
-
-
-
 hidden.emfit.S<-function(y,model.obs,model.lat=NULL,nlat=1,
       noineq = TRUE, maxit = 10, maxiter=100, norm.diff.conv = 1e-05, 
     norm.score.conv = 1e-05, y.eps = 0,  mup = 1, step = 1,printflag=0,old.tran.p=NULL,
 bb=NULL,q.par=q.par)
-{
+{Nobs<-dim(y)[1]
+
 #-------------------------------------------------------------------
 #CORPO FUNZIONE
 #INIZIALIZZAZIONE
@@ -371,6 +372,8 @@ if(is.null(bb)){
 bb<-matrix(runif(prod(lev),0,1),strata,prod(levobs))
 bb<-prop.table(bb,1)
 }
+
+old.Ptobs<-bb
 #bb<-c(table(as.data.frame(y)))
 #bb<-matrix(bb,strata,length(bb),byrow=TRUE)
 #bb<- prop.table(bb,1)
@@ -407,7 +410,7 @@ Lold<-999999
 par.conv<-tran.conv<-L.conv<-99999999
 #EM iterations----------------------------------------------
 iter<-1
-while ( ((par.conv> norm.diff.conv)||(L.conv > norm.score.conv))
+while ( (  ((par.conv> norm.diff.conv)&(tran.conv> norm.diff.conv)  ) ||(L.conv > norm.score.conv))
      &(iter< maxiter))
    {
 
@@ -500,7 +503,7 @@ Lnew<-sum(log(ffs$fy))
 
 par.conv<-quantile(abs(newpar-oldpar),q.par)
 L.conv<-abs(Lnew-Lold)
-tran.conv<-quantile(abs(c(new.tran.p-old.tran.p)),1)
+tran.conv<-quantile(abs(c(new.tran.p-old.tran.p,Ptobs-old.Ptobs)),1)
 
 #CRITERI CONVERGENZA
 #par.conv<-max(abs(newpar-oldpar))
@@ -508,9 +511,11 @@ tran.conv<-quantile(abs(c(new.tran.p-old.tran.p)),1)
 #tran.conv<-max(abs(c(new.tran.p-old.tran.p)))
 oldpar<-newpar
 old.tran.p<-new.tran.p
+old.Ptobs<-Ptobs
 Lold<-Lnew
 if(printflag > 0){
-if(iter%%printflag==0){ cat("loglik= ",Lnew," Lconv= ",L.conv, " parconv= ",par.conv, " niter= ",iter)
+if(iter%%printflag==0){ cat("loglik= ",Lnew," Lconv= ",L.conv,
+" prob.conv= ",tran.conv, " niter= ",iter)
 cat("\n")
 }
 }
@@ -529,11 +534,11 @@ iter<-iter+1
 #dl<-dl[-c(strata:(2*strata-2)),]
 #dof<-(dim(model.obs$matrici$X)[1]+dim(model.lat$matrici$X)[1]-
 #dim(model.obs$matrici$X)[2]-dim(model.lat$matrici$X)[2])
-dof<-fit.obs$df+fit.lat$df
+#############################################dof<-fit.obs$df+fit.lat$df
 fit.obs$Gsq<-Lnew
 fit.obs$Xsq<-NaN
 fit.obs$Wsq<-NaN
-fit.obs$df<-dof
+######################################################fit.obs$df<-dof
 fit.lat$Gsq<-NaN
 fit.lat$Xsq<-NaN
 fit.lat$Wsq<-NaN
@@ -593,13 +598,14 @@ BLHK.filter <- function(pobs,pr,p0)
 
 print.hidden<-function(x,printflag=FALSE,...){fitted<-x
 #print(fitted$model.lat,printflag=printflag,aname="latent model",printhidden=TRUE)
+
+#print(fitted$model.obs,printflag=printflag,aname="observation model",printhidden=1)
+hmmm.model.summary(fitted$model.obs$model,fitted$model.obs,aname="observation model",printflag=printflag,printhidden=1)
+if(printflag==TRUE){
+cat("  effects relating  to  latent variables only, if printed ,","\n", "must not be considered" , "\n")}
 hmmm.model.summary(fitted$model.lat$model,fitted$model.lat,aname="latent model",printflag=printflag,printhidden=2)
 if(printflag==TRUE){
 cat("  effects relating  to the lagged latent variables only, if printed","\n", "must not be considered" , "\n")}
-#print(fitted$model.obs,printflag=printflag,aname="observation model",printhidden=1)
-hmmm.model.summary(fitted$model.obs$model,fitted$model.obs,aname="observation model",printflag=printflag,printhidden=TRUE)
-if(printflag==TRUE){
-cat("  effects relating  to  latent variables only, if printed ,","\n", "must not be considered" , "\n")}
 }
 summary.hidden<-function(object,...){
 fitted<-object
@@ -624,22 +630,120 @@ print(t(fitted$Ptobs))
 hmm.hmm.anova<-function(modelloA,modelloB){
 Gsq<-2*abs(modelloA$model.obs$Gsq-modelloB$model.obs$Gsq)
 a<-modelloA$model.obs
+alat<-modelloA$model.lat
 if(class(a)=="hmmmfit"){
-dfA=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata}
+dfA=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata+
+alat$df+dim(alat$Zlist$DMAT)[1]-dim(alat$Zlist$DMAT)[2]-alat$model$modello$strata}
 pA<-signif(1-pchisq(a$Gsq,dfA),5)
 
 b<-modelloB$model.obs
+blat<-modelloB$model.lat
 if(class(b)=="hmmmfit"){
-dfB=b$df+dim(b$Zlist$DMAT)[1]-dim(b$Zlist$DMAT)[2]-b$model$modello$strata}
+dfB=b$df+dim(b$Zlist$DMAT)[1]-dim(b$Zlist$DMAT)[2]-b$model$modello$strata+
+blat$df+dim(blat$Zlist$DMAT)[1]-dim(blat$Zlist$DMAT)[2]-blat$model$modello$strata}
 pB<-signif(1-pchisq(b$Gsq,dfB),5)
 
 
 dof<-abs(dfA-dfB)
-P<-signif(1-pchisq(Gsq,dof),5)
-print(matrix(c(a$Gsq,b$Gsq,Gsq,dfA,dfB,dof,"","",P),3,3,
-dimnames = list( c("model A", "model B","LR test"), c("statistics value", "dof","pvalue")  )    ),quote=FALSE)
+P<-round((1-pchisq(Gsq,dof)),5)
+#print(matrix(c(round(a$Gsq,5),round(b$Gsq,5),round(Gsq,5),dfA,dfB,dof,"","",P),3,3,
+#dimnames = list( c("model A", "model B","LR test"), c("statistics value", "dof","pvalue")  )    ),quote=FALSE)
+
+
+
+anova.table<-matrix(c(round(a$Gsq,5),round(b$Gsq,5),round(Gsq,5),dfA,dfB,dof,NA,NA,P),3,3,
+dimnames = list( c("model A", "model B","LR test"), c("statistics value", "dof","pvalue")  )    )
+
 
 }
 anova.hidden<-function(object,objectlarge,...){t<-
 hmm.hmm.anova(object,objectlarge)
 t}
+
+akaike<-function(...,LRTEST=FALSE,ORDERED=FALSE,NAMES=NULL){
+MOD<-list(...)
+n<-length(MOD)
+VAK<-matrix(0,1,8)
+if(LRTEST){
+if(class(MOD[[1]])=="hidden")
+{
+a<-MOD[[1]]$model.obs
+b<-MOD[[1]]$model.lat
+adf1<-a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata
+bdf1<-b$df+dim(b$Zlist$DMAT)[1]-dim(b$Zlist$DMAT)[2]-b$model$modello$strata
+df1<-adf1+bdf1
+Gsq1<-2*MOD[[1]]$model.obs$Gsq
+}
+
+else{
+df1=MOD[[1]]$df+dim(MOD[[1]]$Zlist$DMAT)[1]-dim(MOD[[1]]$Zlist$DMAT)[2]-MOD[[1]]$model$modello$strata
+y<-MOD[[1]]$y 
+Gsq1 <--MOD[[1]]$Gsq+ 2*sum(y[y>0]*log(y[y>0]))
+}
+}
+for(i in 1:n) {
+GSQ<-df<-P<-0
+if(class(MOD[[i]])=="hidden"){
+if(is.null(MOD[[i]])){ VAK<-rbind(VAK,c(i,rep(NA,7))) }
+if(!is.null(MOD[[i]]))
+{
+a<-MOD[[i]]$model.obs
+b<-MOD[[i]]$model.lat
+adf<-a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata
+bdf<-b$df+dim(b$Zlist$DMAT)[1]-dim(b$Zlist$DMAT)[2]-b$model$modello$strata
+npar<-length(MOD[[i]]$vecpar$obs)+length(MOD[[i]]$vecpar$lat)-adf-bdf
+AK<-2*npar-2*a$Gsq
+
+#################
+if(LRTEST){
+GSQ<- -2*a$Gsq+Gsq1
+df<-adf+bdf-df1
+P<-1-pchisq(GSQ,df)
+}
+#########################
+#AK<-c(i,a$Gsq,npar,AK)
+VAK<-rbind(VAK,c(i,a$Gsq,adf+bdf,npar,GSQ,df,P,AK))
+}
+}
+else{
+dfi=MOD[[i]]$df+dim(MOD[[i]]$Zlist$DMAT)[1]-dim(MOD[[i]]$Zlist$DMAT)[2]-MOD[[i]]$model$modello$strata
+npar<-length(MOD[[i]]$y)-MOD[[i]]$model$modello$strata-dfi
+
+
+y<-MOD[[i]]$y   
+Gsqi <--MOD[[i]]$Gsq/2+ sum(y[y>0]*log(y[y>0]))
+AK<--2*Gsqi+2*npar
+###########################################################
+if(LRTEST){
+df<-dfi-df1
+GSQ<--2*Gsqi+Gsq1
+P<-1-pchisq(GSQ,df)
+}
+########################################################
+VAK<-rbind(VAK,c(i,Gsqi,MOD[[i]]$df,npar,GSQ,df,P,AK))
+
+}
+}
+VAK<-VAK[-1,]
+
+Delta<-VAK[,8]-min(VAK[,8])
+VAK<-cbind(VAK,matrix(Delta,length(Delta),1))
+VAK[,-1]
+if(is.null(NAMES)){
+rownames(VAK)<-paste("model",1:n,sep="")}
+else{rownames(VAK)<-NAMES}
+if(LRTEST){
+colnames(VAK)<-c("#model","loglik","dfmodel","npar","LRTEST","dftest","PVALUE","AIC","DeltaAIC")
+}
+else{
+
+VAK<-VAK[,c(1,2,3,4,8,9)]
+colnames(VAK)<-c("#model","loglik","dfmodel","npar","AIC","DeltaAIC")
+}
+if(ORDERED){r<-order(VAK[,dim(VAK)[2]])
+VAK[r,]}
+else{VAK}
+
+
+}
+

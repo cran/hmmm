@@ -8,7 +8,8 @@ recursive,
 marg.list,
 loglin.model,
 hidden.emfit,
-getnames
+getnames,
+akaike
 )
 S3method(print,hmmmmod)
 S3method(summary,hmmmmod)

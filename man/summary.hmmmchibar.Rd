@@ -23,9 +23,13 @@ a plot of the survival functions (red: type B, black: type A)}
 \value{It provides the output
 of the function `hmmm.chibar', that is the results of testing models defined by `hmmm.model' and
  estimated 
-by `hmmm.mlfit', with equality and inequality constraints on marginal interactions. The statistics test of type A and B, their simulated pvalues and the chi-bar distribution functions 
-are tabulated.}
-\references{Silvapulle MJ, Sen PK (2005) Constrained statistical
+by `hmmm.mlfit', with equality and inequality constraints on marginal interactions. 
+The statistics test of type A and B, their pvalues and the chi-bar distribution functions 
+are tabulated. If \code{TESTAB = TRUE} when the function `hmmm.chibar' is called, the output of the LR tuned testing procedure (Colombi and Forcina, 2013) 
+is displayed.}
+\references{Colombi R. Forcina A. (2013) Testing order restrictions in contingency tables. Submitted
+
+Silvapulle MJ, Sen PK (2005) Constrained statistical
 inference, Wiley, New Jersey.}
 \note{Use `print' for a short output.}
 \seealso{\code{\link{hmmm.chibar}}, \code{\link{print.hmmmchibar}}}
