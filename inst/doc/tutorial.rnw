@@ -1,4 +1,3 @@
-
 \documentclass[nojss]{jss}
 \newcommand{\ci}{\mbox{\protect $\: \perp \hspace{-2.3ex}\perp$ }}
 % ------------ Start macros ---------------------
@@ -54,9 +53,12 @@ defined, estimated and tested using the \pkg{hmmm} package.
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
 \begin{document}
 \maketitle
-
+%\SweaveOpts{concordance=TRUE}
+%% include your article here, just as usual
+%% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 \section{Introduction}
 Marginal models  are  defined for categorical variables by imposing restrictions on
 marginal distributions of contingency tables, \cite[Ch 12]{agresti_2012}.
@@ -123,10 +125,10 @@ and the marginal sets $\cg M_1= \{1\}, \cg M_2= \{1,2\}, \cg M_3= \{1,2,3\}$, th
 
 
 The elements of $\b \eta$, defined on the marginal distribution of the variables in $\cg M$, are specified by assigning a logit type   to each variable $i \in \cg M$
- among the 5 different types: baseline (\code{b}) $\eta_i(x;b)=\log\{Pr(i=x)\}-\{Pr(i=1)\}$ (the reference category is the first),
- local (\code{l}) $\eta_i(x;l)=\log\{Pr(i=x)\}-\{Pr(i=x-1)\}$, global (\code{g}) $\eta_i(x;g)=\log\{Pr(i>x-1)\}-\{Pr(i \leq x-1)\}$,
- continuation (\code{c}) $\eta_i(x;c)=\log\{Pr(i>x-1)\}-\{Pr(i = x-1)\}$
-and reverse continuation (\code{rc}) $\eta_i(x;rc)=\log\{Pr(i=x)\}-\{Pr(i \leq x-1)\}$, with $x=2,...,c_i$, where $c_i$ is the number of categories 
+ among the 5 different types: baseline (\code{b}) $\eta_i(x;b)=\log\{Pr(i=x)\}-\log\{Pr(i=1)\}$ (the reference category is the first),
+ local (\code{l}) $\eta_i(x;l)=\log\{Pr(i=x)\}-\log\{Pr(i=x-1)\}$, global (\code{g}) $\eta_i(x;g)=\log\{Pr(i>x-1)\}-\log\{Pr(i \leq x-1)\}$,
+ continuation (\code{c}) $\eta_i(x;c)=\log\{Pr(i>x-1)\}-\log\{Pr(i = x-1)\}$
+and reverse continuation (\code{rc}) $\eta_i(x;rc)=\log\{Pr(i=x)\}-\log\{Pr(i \leq x-1)\}$, with $x=2,...,c_i$, where $c_i$ is the number of categories 
 of the variable $i$.
  Log-odds ratios and higher-order interactions are defined as contrasts of the mentioned logits as shown by \citet{barcolfor_2007}, \cite{Douglas_et_al_1990}, among others. For example, if logits of type (\code{g}) and (\code{c}) are used for variable $i$ and $j$ respectively, 
   the following log-odds ratios
@@ -329,7 +331,7 @@ feeling of \code{Influence} on the apartment management  (var.~1 with 3 ordinal 
 degree of \code{Contact} with other residents (var.~3 with 2 levels: \code{low}, \code{high}),
 type of \code{Housing}  (var.~4 with 4 levels: \code{tower block}, \code{apartment}, \code{atrium house}, \code{terraced house}).
 
-For the \code{madsen} data, let us consider the statements
+For the \code{madsen} data, let us consider the statement
 <<>>=
 margin <- marg.list(c("marg-marg-l-l", "g-marg-l-l", 
 "marg-g-l-l", "g-g-l-l"))
@@ -440,7 +442,7 @@ that requires an argument for every variable.
 With reference to var.~1  \code{Religion}, the following are the statements defining matrix \code{rec1}
 <<>>=
 rec1 <- matrix(c(-1, -1,  1,
-               -1,  1,  0), 2, 3, byrow = TRUE)
+                 -1,  1,  0), 2, 3, byrow = TRUE)
 @
 
 To the first row of matrix \code{rec1} is associated the first logit $log\left[pr(N)/pr(R)\right]$ of var.~1
@@ -450,12 +452,12 @@ These are the necessary statements to define matrix \code{rec2} for var.~2
 \code{Politics}  
 
 <<>>=
-rec2<-matrix(c(-1, -1, -1,  0,  1,  1,  1,
-             -1, -1, -1,  1,  0,  0,  0,
-              1, -1,  0,  0,  0,  0,  0,
-              0, -1,  1,  0,  0,  0,  0,
-              0,  0,  0,  0,  1, -1,  0,
-              0,  0,  0,  0,  0, -1,  1), 6, 7, byrow = TRUE)
+rec2 <- matrix(c(-1, -1, -1,  0,  1,  1,  1,
+                 -1, -1, -1,  1,  0,  0,  0,
+                  1, -1,  0,  0,  0,  0,  0,
+                  0, -1,  1,  0,  0,  0,  0,
+                  0,  0,  0,  0,  1, -1,  0,
+                  0,  0,  0,  0,  0, -1,  1), 6, 7, byrow = TRUE)
 @
 
 The first row, for example, of matrix \code{rec2} identifies the categories whose probabilities  are cumulated at the denominator ($pr({\rm EL})$, $pr({\rm LI})$ and $pr({\rm SL})$) and at the numerator  ($pr({\rm SC})$, $pr({\rm CO})$ and $pr({\rm EC})$) of the first recursive logit $log\left[pr(C)/pr(L)\right]$ of var.~2
@@ -497,16 +499,16 @@ log\left[\frac{pr({\rm SL})}{pr({\rm LI})}\right]-log\left[\frac{pr({\rm SC})}{p
  
  stating that the distribution between extreme and moderate attitudes
 is the same within conservatives and liberals.
-Condition (\ref{5-8}) equates the 3th and 6th recursive logits of \code{Politics} that
+The condition in Equation~\ref{5-8} equates the 3th and 6th recursive logits of \code{Politics} that
  occupy positions 5 and 8 in the vector $\b \eta$ of parameters, respectively.
-Condition (\ref{6-7}) equates the 4th and 5th recursive logits that are
+The condition in Equation~\ref{6-7} equates the 4th and 5th recursive logits that are
 in positions 6 and 7 in the vector $\b \eta$.
 Remind that in the \pkg{hmmm} package, equality constraints on HMM models are in the form  $\b E \b \eta= \b 0$. 
 
 
 
 Hence, the previous constraints can be defined by assigning the following constraints matrix \code{Emat} to the
- argument \code{E} of the function \code{hmmm.model()}. Note that the  \code{Emat} matrix has 2 rows and 20 columns, the number of parameters.  Rows 1 and 2 are devoted to constraints (\ref{5-8}) and (\ref{6-7}), respectively: all the elements of \code{Emat} are zeros apart from a \code{1} in the 5th position   and a \code{-1} in the 8th position in the first row; the second row has a \code{1} in the 6th position and a \code{-1} in the 7th position
+ argument \code{E} of the function \code{hmmm.model()}. Note that the  \code{Emat} matrix has 2 rows and 20 columns, the number of parameters.  Rows 1 and 2 are devoted to constraints reported in Equations~\ref{5-8} and \ref{6-7}, respectively: all the elements of \code{Emat} are zeros apart from a \code{1} in the 5th position   and a \code{-1} in the 8th position in the first row; the second row has a \code{1} in the 6th position and a \code{-1} in the 7th position
 
 <<>>=
 Emat <- cbind(matrix(0, 2, 4), matrix(c(1, 0, 0, 1, 0, -1, -1, 0), 2, 4), 
@@ -541,7 +543,7 @@ Table 12.1 in \citet[p.~456]{agresti_2012} refers to a longitudinal study of men
 data("depression", package="hmmm")
 y <- getnames(depression, st = 9)
 @ 
- Note that, coherently with the table of data reported in the Agresti's book, in the data frame \code{depression}, the counts are arranged in such a way that \code{R3},  \code{R2} and \code{R1} are var.~1, var.~2 and var.~3, respectively, and  var.~4, var.~5 are the covariates \code{Treatment} and \code{Diagnosis}.   
+ Note that, coherently with the table of data reported in the Agresti's book, in the data frame \code{depression} the counts are arranged in such a way that \code{R3},  \code{R2} and \code{R1} are var.~1, var.~2 and var.~3, respectively, and  var.~4, var.~5 are the covariates \code{Treatment} and \code{Diagnosis}.   
 
  
 Agresti proposes a first marginal model to fit these data  
@@ -552,7 +554,7 @@ Model $M_1$ is a special case of the saturated logit model $$M: l_{tij}=\alpha_t
  \begin{equation} \label{constrM1a}\beta_{t1}^{T}-\beta_{11}^{T}=0, \quad \beta_{t1}^{D}-\beta_{11}^{D}=0, \quad \beta_{t11}^{T,D}=0, \quad t=1,2,3,\end{equation}
  \begin{equation} \label{constrM1b}\alpha_3-2\alpha_2+\alpha_1=0.\end{equation}
  
-Constraints (\ref{constrM1a}) state that the effects of the covariates are additive and do not differ by time occasion. Moreover, under constraints (\ref{constrM1a}) and (\ref{constrM1b}), the logits $l_{tij}$ are linear function of time.
+The constraints in Equation~\ref{constrM1a} state that the effects of the covariates are additive and do not differ by time occasion. Moreover, under the constraints in Equations~\ref{constrM1a} and \ref{constrM1b}, the logits $l_{tij}$ are linear function of time.
  
 Agresti provides a second model which permits the treatment effect to differ by time occasion,  $$M_2: l_{tij}=\alpha+\beta_{0i}^{T}+\beta_j^{D}+\beta t+\beta_{1i}^{T}t, \quad t=1,2,3.$$
 
@@ -584,7 +586,7 @@ For specifying $M_1$ and $M_2$ in terms of HMM models, we cannot use the argumen
 zero restrictions on single parameters. This is the reason why we  specify the constraints on the interactions in the form $\b E \b \eta = \b 0$ (the vector $\b \eta$ here contains the parameters of \code{modelsat}). Below we give the  details of the construction of the matrix 
 $\b E$ for both models. 
 
-For $M_1$, the matrix $\b E_1$ has 31 columns as the number of parameters in \code{modelsat} and 8 rows as the number of the constraints (\ref{constrM1a}) and (\ref{constrM1b}). Remind that among those 31 parameters, only the 12 interactions listed from the 4th to 15th position, are involved and they are here arranged in the sub-vector $\b \eta_1$ for simplicity. Thus, we need to define the sub-matrix $\b A_1$ with 8 rows, one row for each constraint of $M_1$, and 12 columns, one for each parameter in $\b \eta_1$ such as the equation $\b A_1 \b \eta_1 = \b 0$ reproduces the constraints (\ref{constrM1a}) and (\ref{constrM1b}). At this point, we can define the matrix $\b E_1$ as a three blocks matrix with a zero-values matrix in the first and third blocks (columns 1-3 and 16-31 of $\b E_1$) corresponding to unconstrained parameters, and the matrix $\b A_1$ as a middle block (columns 4-15 of $\b E_1$). In details, we write 
+For $M_1$, the matrix $\b E_1$ has 31 columns as the number of parameters in \code{modelsat} and 8 rows as the number of the constraints in Equations~\ref{constrM1a} and \ref{constrM1b}. Remind that among those 31 parameters, only the 12 interactions listed from the 4th to 15th position are involved and they are here arranged in the sub-vector $\b \eta_1$ for simplicity. Thus, we need to define the sub-matrix $\b A_1$ with 8 rows, one row for each constraint of $M_1$, and 12 columns, one for each parameter in $\b \eta_1$ such as the equation $\b A_1 \b \eta_1 = \b 0$ reproduces the constraints in Equations~\ref{constrM1a} and \ref{constrM1b}. At this point, we can define the matrix $\b E_1$ as a three blocks matrix with a zero-values matrix in the first and third blocks (columns 1-3 and 16-31 of $\b E_1$) corresponding to unconstrained parameters, and the matrix $\b A_1$ as a middle block (columns 4-15 of $\b E_1$). In details, we write 
 
 <<>>=
 A1<-matrix(c(
@@ -611,7 +613,7 @@ fitmod1
 @
  The fit is really poor as highlighted by Agresti because the model is based on the assumption that the time effect does not vary by treatment. This hypothesis is removed in model $M_2$.
 
-The matrix $\b E_2$ computed below follows the same reasoning just detailed and here defines the constraints (\ref{constrM2a}) and (\ref{constrM2b}) of $M_2$
+The matrix $\b E_2$ computed below follows the same reasoning just detailed and here defines the constraints in Equations~\ref{constrM2a} and \ref{constrM2b} of $M_2$
 <<>>=
 A2<-matrix(c(
     0,0,0,1,0,0,0,0,0,0,0,0,
@@ -778,9 +780,9 @@ We illustrate how to define, fit and test models with parameters constrained by 
 
 
 In the dataset \code{polbirth} involving data on political orientation and opinion on 
-teenage birth control of a sample of 911 U. S. citizens, var.~1 is \code{Politics} with categories: \code{Extremely liberal}, \code{Liberal}, \code{Slightly liberal},
+teenage birth control of a sample of 911 U.S. citizens, var.~1 is \code{Politics} with categories: \code{Extremely liberal}, \code{Liberal}, \code{Slightly liberal},
 \code{Moderate}, \code{Slightly conservative}, \code{Conservative}, \code{Extremely conservative} and var.~2 is \code{Birth} with
- categories \code{Strongly} \code{agree}, \code{Agree}, \code{Disagree}, \code{Strongly disagree}.
+\code{Strongly} \code{agree}, \code{Agree}, \code{Disagree}, \code{Strongly disagree} categories.
 
 With these variables, for example, we can test the hypothesis that the distributions of \code{Politics}, given the levels
 of \code{Birth}, are ordered according to the simple dominance criterion coherently with the strength
@@ -940,9 +942,10 @@ constraints, among others
 mod_eq <- mphineq.fit(y, Z = Zmat, ZF = ZFmat, h.fct = Gini)
 @
 
-One hypothesis of interest, proposed (but not tested) by Lang himself, is to consider that there is more concentration 
-in ANNS than in the other two journals.
-This is an example of MPH model subject to inequality constraints: $G_1 - G_2 > 0, G_3 - G_1 >0$. 
+One hypothesis of interest, that implies the one  proposed (but not
+tested) by Lang himself, is to consider that there is more concentration in ANNS than in the other two journals 
+and more concentration in JASA than in BMCS. This is an example of MPH model subject to inequality constraints: 
+$G3>G1>G2$ or equivalently $G_1 - G_2 > 0, G_3 - G_1 >0$.
 The model is again defined through the function \code{mphineq.fit()} where the function \code{Gini()} is now assigned to the argument \code{d.fct}
 
 <<>>=
@@ -956,11 +959,56 @@ In this context, it is worthwhile to note that the reference model without inequ
 mod_sat <- mphineq.fit(y, Z = Zmat, ZF = ZFmat)
 hmmm.chibar(nullfit = mod_eq, disfit = mod_ineq, satfit = mod_sat)
 @
-Evidently, the model of common Gini concentrations (\code{mod_eq})  is untenable as we deduced from \code{testA}, coherently with Lang results. The outcome of \code{testB} is in favour of \code{mod_ineq}, it then appears that there is more concentration in ANNS than in the other two journals as supposed by Lang.
+Evidently, the model of common Gini concentrations (\code{mod_eq})  is untenable as we deduced 
+from \code{testA}, coherently with Lang results. 
+The outcome of \code{testB} is in favour of \code{mod_ineq}, it then appears that there is more concentration in ANNS than in the other two journals and more concentration in JASA than in BMCS.
 
+
+\section{Discussion}\label{sec:s10}
+
+The main contribution of the \proglang{R} package \pkg{hmmm} is to give user-friendly
+ tools to define and fit complete hierarchical multinomial marginal
+ models under equality and inequality constraints on a wide
+ variety of marginal interactions. 
+ Classical and more recent marginal models, proposed in the categorical data literature, are special cases of 
+the HMM models. Thus, the potential applicability of the package is wide as 
+several contributions
+on marginal models are implemented. 
+
+In this paper, only the main features of this package have been illustrated, whereas 
+ other aspects have not  been here analyzed.
+
+First, such a package permits to estimate non-hierarchical
+or non-complete marginal models. In particular, a marginal model is non-hierarchical
+when an interaction is not defined in the first marginal distribution
+containing it and non-complete when an interaction
+is defined in more than one distribution. Most of these models are not smooth, so 
+ the standard MLE asymptotic theory does not apply. Anyway, under some conditions
+ they are smooth and therefore they can be fitted by \pkg{hmmm}.
+\cite{forcina_2012} shows examples of smooth non-hierarchical marginal models.
+In the case of non-hierarchical non-complete smooth marginal models
+  for every marginal distribution, the list of interactions
+must be specified by the syntax used for inequalities.
+
+In addition to this, the package can fit hidden Markov models where the conditional
+ distribution of several observable variables and the transition probabilities of the latent chain 
+can be specified by HMM models, see \cite{colombi_giordano_2011}.
+The \code{hidden.emfit()} function computes the ML estimates of the parameters
+via an EM algorithm, but the current version of the package does not provide standard
+ errors.
+
+Moreover, consider that the package is designed to deal with multiway
+tables and cannot handle individual data, commonly used in presence of non-categorical
+ covariates.
+
+Finally, we are aware that some HMM models are Markov with respect to chain or mixed graphs that can be easily defined in \proglang{R}
+\citep[see for example the \proglang{R} package \pkg{ggm} by][]{ggm}. Therefore, it could be an useful improvement to enable the package to define a HMM model starting from a
+graphical representation.
+
+Updated versions of the package will be oriented to overcome the mentioned limits.
+
+We highlighted that in the \proglang{R} environment, other authors dealt with contents connected with our package but in a more restrictive purpose: the \proglang{R} package \pkg{cmm} by \cite{cmm}, accompanying the book by \cite{bergsma_croon_hagenaars_2009}, and the Lang's \code{mph.fit} function handling multinomial Poisson homogeneous models (available from the author).
 
 \bibliography{bibJSS}
 
-
 \end{document}
-

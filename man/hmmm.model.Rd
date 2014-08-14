@@ -108,6 +108,8 @@ The Annals of Statistics, 30, 140-159.
 Cazzaro M, Colombi R (2009) Multinomial-Poisson models subject to inequality 
 constraints. Statistical Modelling, 9(3), 215-233.
 
+Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
+
 Glonek GFV, McCullagh P (1995) Multivariate logistic models for
 contingency tables. Journal of the Royal Statistical Society, B, 57, 533-546.
 }

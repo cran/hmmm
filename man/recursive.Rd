@@ -33,6 +33,8 @@ are used for at least one variable in the multi-way table.
 
 Cazzaro M, Colombi R (2013)
 Marginal nested interactions for contingency tables. Communications in Statistics - Theory and Methods, to appear.
+
+Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
 }
 \seealso{\code{\link{hmmm.model}}, \code{\link{create.XMAT}}, \code{\link{hmmm.model.X}}}
 \examples{

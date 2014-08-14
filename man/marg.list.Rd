@@ -24,6 +24,10 @@ So, for example, "marg-g-c" indicates a marginal set involving variables 2, 3 wi
 \note{This function creates the complete list of the interactions that can be
 defined in a marginal set. Therefore, it cannot be used to specify only the
 interactions subject to inequality constraints. When inequalities are involved in the model, marginal sets and types of logits are declared as illustrated in the details of function `hmmm.model'.}
+\references{Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
+}
+
+
 \seealso{\code{\link{hmmm.model}}}
 \examples{
 data(madsen)

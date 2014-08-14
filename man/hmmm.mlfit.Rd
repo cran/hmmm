@@ -37,6 +37,8 @@ functions for modelling contingency tables by equality
 
 Bergsma WP, Rudas T (2002) Marginal models for categorical data. The Annals of Statistics, 30, 140-159. 
 
+Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
+
 Lang  JB (2004) Multinomial Poisson homogeneous models for contingency tables. The Annals of Statistics, 32, 340-383.}
 \seealso{\code{\link{hmmm.model}}, \code{\link{hmmm.model.X}}, \code{\link{summary.hmmmfit}}, \code{\link{print.hmmmfit}}}
 \examples{

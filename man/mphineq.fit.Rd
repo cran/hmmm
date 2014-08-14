@@ -52,7 +52,9 @@ by an equality-inequality constrained quadratic programming problem.
 The `mph.fit' step halving linear search is replaced by an optimal
 step length search performed by `optimize'. 
 }
-\references{Lang  JB (2004) Multinomial Poisson homogeneous models for contingency tables. The Annals of Statistics, 32, 340-383.
+\references{Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
+
+Lang  JB (2004) Multinomial Poisson homogeneous models for contingency tables. The Annals of Statistics, 32, 340-383.
 
 Lang JB (2005) Homogeneous linear predictor models
 for contingency tables. Journal of the American Statistical Association, 100, 121-134.

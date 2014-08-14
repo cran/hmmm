@@ -23,3 +23,7 @@ S3method(summary,hidden)
 S3method(print,hidden)
 S3method(print,mphfit)
 S3method(summary,mphfit)
+import(MASS)
+import(mvtnorm)
+import(quadprog)
+

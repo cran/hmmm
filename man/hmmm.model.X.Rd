@@ -32,7 +32,9 @@ log odds ratios (A.B) of the two responses is specified by the following \code{F
 \code{Formula<-list(A=~A*(C+D), B=~B*(C+D), A.B=~A.B*(C+D))}. Use "zero" to constrain to zero all the interactions of a given type. The saturated model is the default if \code{Formula} is not specified.
 }
 \value{An object of the class \code{hmmmmod}; it describes a marginal model with effects of covariates on the interactions. This model can be estimated by `hmmm.mlfit'.}
-\references{Glonek GFV, McCullagh P (1995) Multivariate logistic models for
+\references{Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
+
+Glonek GFV, McCullagh P (1995) Multivariate logistic models for
 contingency tables. Journal of the Royal Statistical Society, B, 57, 533-546.
 
 Marchetti GM, Lupparelli M (2011) Chain graph models of multivariate regression type for categorical data. Bernoulli, 17, 827-844.}
