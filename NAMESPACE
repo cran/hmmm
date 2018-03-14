@@ -9,7 +9,9 @@ marg.list,
 loglin.model,
 hidden.emfit,
 getnames,
-akaike
+akaike,
+GMI,
+inv_GMI
 )
 S3method(print,hmmmmod)
 S3method(summary,hmmmmod)
@@ -25,5 +27,11 @@ S3method(print,mphfit)
 S3method(summary,mphfit)
 import(MASS)
 import(mvtnorm)
+import(nleqslv)
 import(quadprog)
-
+importFrom("graphics", "abline", "matplot")
+importFrom("stats", "as.formula", "contr.treatment", "contrasts",
+             "contrasts<-", "model.matrix", "optimize", "pchisq",
+             "pnorm", "qchisq", "quantile", "rnorm", "runif", "terms",
+             "uniroot", "xtabs")
+importFrom("utils", "combn")

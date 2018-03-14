@@ -30,7 +30,7 @@ bb=NULL,q.par=q.par)
 #-------------------------------------------------------------------
 #CORPO FUNZIONE
 #INIZIALIZZAZIONE
-#modalità osservate più latenti
+#modalit osservate pi latenti
 if(!class(model.lat)=="hmmmmod"){
 ######---------------------------######
 #0ld nstrata<-model.obs$modello$livelli[1]
@@ -61,7 +61,7 @@ levobs<-lev
 #p-1 sono osservate attuali
 p<-length(lev)
 
-#modalità osservate
+#modalit osservate
 ################---------------------###############
 #old levobs<-lev[-1]
 
@@ -70,7 +70,7 @@ p<-length(lev)
 strata<-prod(model.obs$lev.strata)
 
 ###########################################################
-#inizializzo prob transizione con distrib equiprobabilità
+#inizializzo prob transizione con distrib equiprobabilit
 if(is.null(old.tran.p)){ 
 #old.tran.p<-matrix(runif(strata^2,0,1),strata,strata)
 old.tran.p<-matrix(1,strata,strata)
@@ -94,7 +94,7 @@ r<-cbind(r,oggi)
 r<-as.data.frame(r)
 
 #inizializzo working data per latente attuale e ritardata
-#la attuale varia più velocemente
+#la attuale varia pi velocemente
 oggi<-gl(strata,1,strata^2*dim(y)[1])
 ieri<-gl(strata,strata,strata^2*dim(y)[1])
 rrr<-cbind(oggi,ieri)
@@ -130,7 +130,7 @@ bb<-bb[,yii]
 ffs<-BLHK.filter(bb,t(old.tran.p),old.iniz.p)
 
 
-#probabilità congiunte stati tempo t e tempo t-1
+#probabilit congiunte stati tempo t e tempo t-1
 #smoothed
 smooth.p<-array(
 apply(X=ffs$pairs,FUN=function(x) t(x),
@@ -183,12 +183,12 @@ else{p1<-fit.lat$L}
 p2<-fit.obs$L
 newpar<-c(p1,p2)
 #forma tabellare frequenze teoriche congiunte obs + latente attuale
-######CRITICO°°°°°°°°°°°°
+######CR
 lev2<-c(prod(levobs),strata)
 newm<-array(fit.obs$m,lev2)
 newmmm<-array(fit.lat$m,c(strata,strata))
 #da forma tabellare frequenze teoriche congiunte
-#ricavo probabilità di transizione
+#ricavo probabilit di transizione
 new.tran.p<-prop.table(newmmm,2)
 #calcolo distr.  invariante della latente
 A<-diag(1,strata)-new.tran.p
@@ -201,12 +201,12 @@ new.iniz.p<-new.iniz.p[,strata+1]
 #in forma tabellare frequenze teoriche congiunte
 #marginalizzo rispetto latente ritardata
 #newm<-apply(newm,c(1:p,(p+2):length(lev)),sum)
-#calcolo probabilità osservate dato stato latente attuale
+#calcolo probabilit osservate dato stato latente attuale
 ########CRITICAL##################
 b<-prop.table(newm,2)
 
 #per ogni istante temporale calcolo:
-#probabilità osservazioni tempo t 
+#probabilit osservazioni tempo t 
 #dato ogni stato latente
 #b<-matrix(b,ncol=strata)
 b<-t(b)
@@ -227,7 +227,7 @@ bb<-b[,yii]
 ffs<-BLHK.filter(bb,t(new.tran.p),new.iniz.p)
 
 
-#probabilità congiunte stati tempo t e tempo t-1
+#probabilit congiunte stati tempo t e tempo t-1
 #smoothed
 smooth.p<-array(
 apply(X=ffs$pairs,FUN=function(x) t(x),
@@ -256,7 +256,7 @@ iter<-iter+1
 }  
 #END EM iterations----------------------------------------------------------------------------------------------------
 #restituisco working models, prob transizione, distr iniziale, 
-#prob stati smmothed e filtrate, probabilità osservazioni tempo t dato passato , max verosim marginale, condizioni convergenza
+#prob stati smmothed e filtrate, probabili osservazioni tempo t dato passato , max verosim marginale, condizioni convergenza
 #hmlist<-list(model=list(lat=fit.lat,obs=fit.obs),initial=new.iniz.p,
 #Ptr<-new.tran.p,filter=ff,smooth=ffs, 
 #Gsq=Lnew,conv=c(iter,par.conv,tran.conv,L.conv))
@@ -293,7 +293,7 @@ bb=NULL,q.par=q.par)
 #-------------------------------------------------------------------
 #CORPO FUNZIONE
 #INIZIALIZZAZIONE
-#modaltà osservate più latenti
+#modalt osservate pi latenti
 if(!class(model.lat)=="hmmmmod"){
 ######---------------------------######
 #0ld nstrata<-model.obs$modello$livelli[1]
@@ -326,7 +326,7 @@ lev<-model.obs$modello$livelli
 #p-1 sono osservate attuali
 p<-length(lev)
 
-#modalità osservate
+#modalit osservate
 ################---------------------###############
 #old levobs<-lev[-1]
 levobs<-lev[-(1:nlat)]
@@ -335,7 +335,7 @@ levobs<-lev[-(1:nlat)]
 strata<-prod(model.obs$modello$livelli[1:nlat])
 
 ###########################################################
-#inizializzo prob transizione con distrib equiprobabilità
+#inizializzo prob transizione con distrib equiprobabilit
 if(is.null(old.tran.p)){ 
 #old.tran.p<-matrix(runif(strata^2,0,1),strata,strata)
 old.tran.p<-matrix(1,strata,strata)
@@ -358,7 +358,7 @@ r<-cbind(oggi,r)
 r<-as.data.frame(r)
 
 #inizializzo working data per letente attuale e ritardata
-#la attuale varia più velocemente
+#la attuale varia pi velocemente
 oggi<-gl(strata,1,strata^2*dim(y)[1])
 ieri<-gl(strata,strata,strata^2*dim(y)[1])
 rrr<-cbind(oggi,ieri)
@@ -394,7 +394,7 @@ bb<-bb[,yii]
 ffs<-BLHK.filter(bb,t(old.tran.p),old.iniz.p)
 
 
-#probabilità congiunte stati tempo t e tempo t-1
+#probabilit congiunte stati tempo t e tempo t-1
 #smoothed
 smooth.p<-array(
 apply(X=ffs$pairs,FUN=function(x) t(x),
@@ -447,12 +447,12 @@ else{p1<-fit.lat$L}
 p2<-fit.obs$L[-c(1:strata-1)]
 newpar<-c(p1,p2)
 #forma tabellare frequenze teoriche congiunte obs + latente attuale
-######CRITICO°°°°°°°°°°°°
+######CRITICO
 lev2<-c(strata,lev[-(1:nlat)])
 newm<-array(fit.obs$m,lev2)
 newmmm<-array(fit.lat$m,c(strata,strata))
 #da forma tabellare frequenze teoriche congiunte
-#ricavo probabilità di transizione
+#ricavo probabilitdi transizione
 new.tran.p<-prop.table(newmmm,2)
 #calcolo distr.  invariante della latente
 A<-diag(1,strata)-new.tran.p
@@ -465,12 +465,12 @@ new.iniz.p<-new.iniz.p[,strata+1]
 #in forma tabellare frequenze teoriche congiunte
 #marginalizzo rispetto latente ritardata
 #newm<-apply(newm,c(1:p,(p+2):length(lev)),sum)
-#calcolo probabilità osservate dato stato latente attuale
+#calcolo probabilit osservate dato stato latente attuale
 ########CRITICAL##################
 b<-prop.table(newm,1)
 
 #per ogni istante temporale calcolo:
-#probabilità osservazioni tempo t 
+#probabilit osservazioni tempo t 
 #dato ogni stato latente
 b<-matrix(b,nrow=strata)
 Ptobs<-b
@@ -490,7 +490,7 @@ bb<-b[,yii]
 ffs<-BLHK.filter(bb,t(new.tran.p),new.iniz.p)
 
 
-#probabilità congiunte stati tempo t e tempo t-1
+#probabilit congiunte stati tempo t e tempo t-1
 #smoothed
 smooth.p<-array(
 apply(X=ffs$pairs,FUN=function(x) t(x),
@@ -524,7 +524,7 @@ iter<-iter+1
 }  
 #END EM iterations----------------------------------------------------------------------------------------------------
 #restituisco working models, prob transizione, distr iniziale, 
-#prob stati smmothed e filtrate, probabilità osservazioni tempo t dato passato , max verosim marginale, condizioni convergenza
+#prob stati smmothed e filtrate, probabilit osservazioni tempo t dato passato , max verosim marginale, condizioni convergenza
 #hmlist<-list(model=list(lat=fit.lat,obs=fit.obs),initial=new.iniz.p,
 #Ptr<-new.tran.p,filter=ff,smooth=ffs, 
 #Gsq=Lnew,conv=c(iter,par.conv,tran.conv,L.conv))

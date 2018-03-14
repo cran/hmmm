@@ -423,7 +423,8 @@ ddl<-NULL
 ddl<-
 solve.QP(Dmat=diag(1,l),dvec= z, Amat=t(DD), meq=0, factorized=FALSE)
 
-if (is.null(ddl)){next}
+if (is.null(ddl)){ pw<-matrix(0,ur+1,1)}
+else{
 #dd<-ddl$solution
 #dd0<-ddl$unconstrainted.solution
 d<-NULL
@@ -444,7 +445,7 @@ pw<-matrix(0,ur+1,1)
 #print( "failed")
 
 }
-
+}
 pw
 }
 
@@ -498,7 +499,7 @@ w[3]<-Mvncdf1    #2
 else{
 
 #elimino due pesi centrali distinguendo caso k+1 pari e k+1 dispari
-#dove k è numero vincoli
+#dove k  numero vincoli
 if(floor((k+1)/2)==(k+1)/2){
 J<-(0:k)[-c((k+1)/2,(k+3)/2)]}
 else{

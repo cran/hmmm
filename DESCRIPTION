@@ -1,7 +1,7 @@
 Package: hmmm
-Version: 1.0-3
-Date: 2014-08-14
-Title: hierarchical multinomial marginal models
+Version: 1.0-4
+Date: 2018-03-05
+Title: Hierarchical Multinomial Marginal Models
 Author: Colombi Roberto and Sabrina Giordano and Manuela Cazzaro, with contributions from Joseph Lang
 Maintainer: Colombi Roberto <colombi@unibg.it>
 Description: Functions for specifying and fitting marginal models for contingency tables proposed 
@@ -10,10 +10,10 @@ Description: Functions for specifying and fitting marginal models for contingenc
  	tables proposed by Lang (2004) and (2005); hidden Markov models where the distribution of the observed variables 
 	is described by a marginal model. 
 	Inequality constraints on the parameters are allowed and can be tested.
-Imports: quadprog, MASS, mvtnorm
+Imports: quadprog, MASS, mvtnorm, nleqslv
 License: GPL (>= 2)
 Repository: CRAN
-URL: http://www.r-project.org
-Packaged: 2014-08-14 15:06:52 UTC; corostat
+URL: https://www.r-project.org
 NeedsCompilation: no
-Date/Publication: 2014-08-14 18:06:17
+Packaged: 2018-03-14 10:59:57 UTC; colombi
+Date/Publication: 2018-03-14 11:26:58 UTC

@@ -1,10 +1,11 @@
-ef47249453f4b7f4937d00b98352f69c *DESCRIPTION
-6362712732b4fbee29071947cdf8d5a9 *NAMESPACE
-af189e56e51ec105bd248519722408f1 *NEWS
-e5db3873d90478f1958ba4a6d8a05f5d *R/hidden.R
-c60e2396df9e9a0558f2a4b542680f7d *R/margmod.R
+f64ad451d300381c3de480daa651cc20 *DESCRIPTION
+ff1193227ae8074909e2d668e773b1ca *NAMESPACE
+ee5c45293a085c2d3e15990f1d6992a4 *NEWS
+b0d3aba5ced5a59a3da39cd1a4852393 *R/GMI.R
+4f42c86f6819021cba492e35307d69b7 *R/hidden.R
+f00973408088c88093d2971fcfc51218 *R/margmod.R
 3780442151de480d62b197a43c396146 *R/mph_ineq.R
-e673608d9270d13568262358fa066146 *build/vignette.rds
+f8d27dab20aaa15fcba3f4c649ae5275 *build/vignette.rds
 fb22064c93a90528d83109c87d5448d3 *data/accident.rda
 c6fc0c2429e38aa1731b8dfdfba4d2fc *data/depression.rda
 2ab6a6ae0897c5d03a885b5e033aee06 *data/drinks.rda
@@ -24,8 +25,9 @@ dcb66c1dbeaa5e8ac1923551f853ad97 *demo/polbirth_monotone.r
 947eca42ecb9126838e6ef222aec0a56 *demo/relpolbirth_loglinear.r
 3589f1f4351fac94f185fe0e08855c88 *inst/CITATION
 a5acdd29f4aa4fa79f1e3126644da43a *inst/doc/tutorial.R
-5c633b8777f6f820a55a4fce9658bcde *inst/doc/tutorial.pdf
+4a21dfbda35789f7899133ee3da031da *inst/doc/tutorial.pdf
 749c1a6ccb216f0f66d895492f9aa481 *inst/doc/tutorial.rnw
+3ac4cb43a2882800510bf3747f332ea7 *man/GMI.Rd
 ec517de2acdc182922e8c1239b10ed5b *man/accident.Rd
 726bc7dd8bf2f31763f7a029bb0253e0 *man/akaike.Rd
 c18920c2e8aaa9fe7ff6d3307516ad66 *man/anova.hidden.Rd
@@ -40,6 +42,7 @@ d90715c52fee40cbac8ca2aae9d1c701 *man/anova.hmmmfit.Rd
 b172817d8b5c0b99e5cdb4bd8b14d92b *man/hmmm.mlfit.Rd
 c14ee897ff5b8376b2d5453cc2d2982e *man/hmmm.model.Rd
 5f6ddab0debc5f43046afc7aa2f6e730 *man/hmmm.model.X.Rd
+62d3c3571a74055a0b0a59df152d7fb5 *man/inv_GMI.Rd
 256f5f4e0ecb38f1b40ef4ee9ad42c58 *man/kentucky.Rd
 84d43bb2b0d8430d85060411f1194829 *man/loglin.model.Rd
 74f3f7acd02c2a21eb0950cdf3e2b723 *man/madsen.Rd

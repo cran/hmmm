@@ -35,6 +35,18 @@ o Revised the tutorial file
 o Modified Citation file 
 
 
+Changes in Version 1.0-4
+
+o Function GMI to compute generalized marginal interactions is added
+
+o Function inv_GMI to compute a vector of joint probabilities from a vector of generalized marginal interactions is added
+
+o Fixed bugs in hmmm.chibar
+
+
+
+
+
 
 
 
