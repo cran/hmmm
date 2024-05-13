@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ akaike criterium }
 \description{
-Compute AIC value for a list of hmm and hidden Markov models
+Compute AIC value for a list of hmm  models
 }
 \usage{
 akaike(..., LRTEST = FALSE, ORDERED = FALSE, NAMES = NULL)
@@ -63,7 +63,7 @@ modC <- hmmm.mlfit(y, modelC)
 modC
 
 akaike(modB, modA, modC, ORDERED = TRUE, NAMES = c("modB", "modA", "modC"))
-akaike(modB, modA, modC, LRTEST = TRUE, NAMES = c("modB", "modA", "modC"))}
+akaike(modA, modB, modC, LRTEST = TRUE, NAMES = c("modA", "modB", "modC"))}
 
 \keyword{ models}% 
 

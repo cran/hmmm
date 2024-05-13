@@ -67,8 +67,8 @@ if ((is.function(derht.fct)==FALSE)&(sum(abs(X)) != 0)&(is.function(derLt.fct)==
 	 
 #########################################################################
  
-if ((is.function(h.fct)==TRUE)||(is.function(d.fct)==TRUE)||(class(formula)
-=="formula"))  {
+#if ((is.function(h.fct)==TRUE)||(is.function(d.fct)==TRUE)||(class(formula)=="formula"))  {
+if ((is.function(h.fct)==TRUE)||(is.function(d.fct)==TRUE)||(is(formula,"formula")))  {
 
 #
    lenm <- length(y);
@@ -187,14 +187,14 @@ if ((is.function(d.fct)==FALSE)&(is.function(h.fct)==FALSE)) {
      #           qpmatr<-t(Zlist$DMAT)%*%Dm%*%Zlist$DMAT
 		
 if (any(is.null(qpmatr))||any(is.na(qpmatr))) {
-print("matrix in quadratic programming not positive def.")
+warning("matrix in quadratic programming not positive def.")
 return("matrix in quadratic programming not positive def.")}	  
 	   	
 As<- solve.QP(qpmatr,t(Zlist$DMAT)%*%(y-m), Amat, bvec, meq=lenh, factorized=FALSE)
 # -------------------------------------------------------------------------------
 
 if(is.null(As)){
-print("Error in solve.QP")
+warning("Error in solve.QP")
 break}
 #-------------------------------------------------------------------------------------	
 #function used by optimize
@@ -301,10 +301,13 @@ if (is.function(derht.fct)==FALSE) {
 
 satflag<-dim(Zlist$DMAT)[1]-dim(Zlist$DMAT)[2]
 
-if ((is.function(h.fct)==TRUE)||(  (class(formula)=="formula")&(satflag >1  ) )){
+#if ((is.function(h.fct)==TRUE)||(  (class(formula)=="formula")&(satflag >1  ) )){
+if ((is.function(h.fct)==TRUE)||(  (is(formula,"formula"))&(satflag >1  ) )){
+#	
 ##################
+#if ((is.function(h.fct)==FALSE)&(class(formula)=="formula")){
 
-if ((is.function(h.fct)==FALSE)&(class(formula)=="formula")){
+if ((is.function(h.fct)==FALSE)&(is(formula,"formula"))){
 
 M<-cbind(Zlist$DMAT,matrix(1,nrow(Zlist$DMAT)  ))
 H<-create.U(M)
@@ -319,7 +322,9 @@ HtDHinvobs <- inv(t(H)%*%(H*c(m)))
 }
 
 
-if ((is.function(h.fct)==TRUE)&(class(formula)=="formula")){
+#if ((is.function(h.fct)==TRUE)&(class(formula)=="formula")){
+if ((is.function(h.fct)==TRUE)&(is(formula,"formula"))){
+	
 #lenh <- length(t(H)%*%log(m))
 M<-cbind(Zlist$DMAT,matrix(1,nrow(Zlist$DMAT)  ))
 H2<-create.U(M)

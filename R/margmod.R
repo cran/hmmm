@@ -1210,7 +1210,8 @@ a
 
 
 hmmm.chibar<-function(nullfit,disfit,satfit,repli=6000,kudo=FALSE,TESTAB=FALSE,alpha=c(0.02,0.03,0),pesi=NULL){
-if(class(disfit)=="hmmmfit"){
+if(is(disfit,"hmmmfit")){     #if(class(disfit)=="hmmmfit"){
+
 
 model<-disfit$model
 #####################nullfit$m
@@ -1220,7 +1221,8 @@ h.fct=model$functions$h.fct,derht.fct=model$functions$derht.fct,
 test0=c(nullfit$Gsq)-c(disfit$Gsq),test1=c(disfit$Gsq)-c(satfit$Gsq),repli=repli,kudo=kudo,TESTAB=TESTAB,alpha=alpha,pesi=pesi,
 formula=model$formula,names=model$names,lev=model$modello$livelli)
 }
-if(class(disfit)=="mphfit"){
+if(is(disfit,"mphfit")){        #if(class(disfit)=="mphfit"){
+
 
 P<-chibar(m=disfit$m,Z=disfit$Z,ZF=disfit$ZF,
 d.fct=disfit$d.fct,derdt.fct=disfit$derdt.fct,
@@ -1243,9 +1245,11 @@ P
 #definition of HMM models
 #
 print.hmmmmod<-function(x,...){
-hmmm.model.summary(x,printflag=TRUE)}
+hmmm.model.summary(x,printflag=TRUE)
+  return()}
 summary.hmmmmod<-function(object,...){
-hmmm.model.summary(object,printflag=TRUE)}
+hmmm.model.summary(object,printflag=TRUE)
+  return()}
 print.hmmmfit<-function(x,aname=" ",printflag=FALSE,...){
 hmmm.model.summary(x$model,x,aname=aname,printflag=printflag,printhidden=0)}
 
@@ -1604,11 +1608,13 @@ t}
 
 hmmm.hmmm.anova<-function(modelA,modelB){
 a<-modelA
-if(class(a)=="hmmmfit"){
+if(is(a,"hmmmfit")){  #if(class(a)=="hmmmfit"){
+
 modelA$df=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata}
 pA<-signif(1-pchisq(a$Gsq,modelA$df),5)
 a<-modelB
-if(class(a)=="hmmmfit"){
+if(is(a,"hmmmfit")){      #if(class(a)=="hmmmfit"){
+
 modelB$df=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata}
 pB<-signif(1-pchisq(a$Gsq,modelB$df),5)
 Gsq<-abs(modelA$Gsq-modelB$Gsq)
@@ -1634,10 +1640,12 @@ print.mphfit<-function(x,...){model.summary(x,cell.stats=FALSE,model.info=FALSE)
 model.summary <- function(mph.out,cell.stats=FALSE,model.info=FALSE) {
 
 a <- mph.out 
-if(class(a)=="hmmmfit"){
+if(is(a,"hmmmfit")){   #if(class(a)=="hmmmfit"){
+
 a$df=a$df+dim(a$Zlist$DMAT)[1]-dim(a$Zlist$DMAT)[2]-a$model$modello$strata}
 
-if (cell.stats==TRUE||class(a)=="mphfit") {
+#if (cell.stats==TRUE||class(a)=="mphfit") {
+if (cell.stats==TRUE||is(a,"mphfit")) {
 
 
 cat("\n GOODNESS OF FIT:")
@@ -1664,8 +1672,9 @@ if (a$L[1] != "NA") {
   dimnames(z)[2] <- "Z-ratio"
   dimnames(pval)[2] <- "p-value"
 
+#if(class(a)=="mphfit"||a$model$modello$strata >1){
 
-if(class(a)=="mphfit"||a$model$modello$strata >1){
+if(is(a,"mphfit")||a$model$modello$strata >1){
 cat("\n COVARIATE EFFECTS...")
   cat("\n")
   print(cbind(a$beta,sbeta,z,pval))
@@ -1676,7 +1685,7 @@ if (cell.stats==TRUE) {
   stdL <- as.matrix(sqrt(diag(a$covL)))
   dimnames(stdL)[2] <- "StdErr(L)"
   LLL<-round(cbind(a$Lobs,a$L,stdL,a$Lresid),4)
-if(class(a)=="hmmmfit"){
+if(is(a,"hmmmfit")){
 if(is.null(a$model$names)){
 descr<-hmmm.model.summary(a$model,printflag=FALSE)
 descr<-rep(descr[,1],descr[,4])}

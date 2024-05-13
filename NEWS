@@ -37,20 +37,15 @@ o Modified Citation file
 
 Changes in Version 1.0-4
 
-o Function GMI to compute generalized marginal interactions is added
+o functions GMI and inv_GMI are introduced to compute loglinear parameters from marginal parameters and viceversa
+ 
 
-o Function inv_GMI to compute a vector of joint probabilities from a vector of generalized marginal interactions is added
+Changes in Version 1.0-5
 
-o Fixed bugs in hmmm.chibar
-
-
-
+o a bug in function inv_GMI has been fixed 
 
 
-
-
-
-
+o dismissed functions about  hidden Markov models
 
  
   

@@ -15,12 +15,13 @@ The generic function `print' is adapted to the objects inheriting from class \co
  if TRUE the estimates of the interaction parameters are also returned}
 \item{\dots}{Further arguments passed to or from other methods}}
 \details{
-The output provides the likelihood ratio statistic test to assess the fitting of the model estimated by `hmmm.mlfit'.
+The printed output provides the likelihood ratio statistic test to assess the fitting of the model estimated by `hmmm.mlfit'.
 Degrees of freedom and pvalues are meaningful only for the hmm models without inequality constraints (see `hmmm.chibar' to 
 test hmm models defined under inequality constraints on interactions). 
 Moreover, if \code{printflag} is TRUE, the estimated interactions are displayed for every stratum, together with 
 the marginal sets where they are defined and the type of logits considered.
 }
+\value{No return value}
 \note{Use `summary' to display a much detailed output.}
 \examples{data(relpol)
 y<-getnames(relpol,st=12)

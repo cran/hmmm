@@ -42,7 +42,7 @@ Vector reporting the positions of the interactions constrained to be zero}
 }
 \details{Variables are denoted by integers, the lower the number identifying the variable 
 the faster its category subscript changes in the vectorized contingency table. Suppose that the variables are 1 and 2 
-with categories k_1, k_2, the joint frequencies y = {y_ij}, where i=1,...,k_1, j=1,...,k_2, 
+with categories k_1, k_2, the joint frequencies yij, where i=1,...,k_1, j=1,...,k_2, 
 are arranged in a vector so that the subscript i changes faster than j. If \code{strata} is greater than one, the
 vectorized contingency tables must be entered strata by strata. So that, for example, if the variables are distinguished in 
 responses and covariates, the categories of the covariates determine the strata and the data are arranged 

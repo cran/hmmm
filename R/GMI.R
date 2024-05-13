@@ -14,7 +14,7 @@ colnames(gmi)<-paste("F",1:dim(gmi)[2],sep="")
 gmi<-list(marginals=interf,gmi=gmi)
 }
 
-inv_GMI<-function(etpar,mod,start=rep(0,prod(mod$modello$livelli))){
+inv_GMI<-function(etpar,mod,start=NULL){
   #given a vector of complete hyerarchical generalized marginal interactions  computes the joint probabilities
   #etpar=vettorog generalized marginal interactions
   #modello marginale oggetto classe hmmmmod
@@ -34,7 +34,8 @@ inv_GMI<-function(etpar,mod,start=rep(0,prod(mod$modello$livelli))){
       t( t(Zlist$DMAT)%*%
            diag(c(x+1e-08)) %*%interfder(x)
       )) }
-  r<-nleqslv(rep(0,15),myfun,myder)$x
+  if(is.null(start)) start<-rep(0,dim(Zlist$DMAT)[2])
+  r<-nleqslv(start,myfun,myder)$x
   r<-as.matrix(exp(Zlist$DMAT%*%r))
   r<-r/sum(r) 
 }

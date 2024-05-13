@@ -15,8 +15,9 @@ by `hmmm.mlfit'.
 \details{
 Nested models, fitted by `hmmm.mlfit', are compared (e.g. modelA is nested in modelB), 
 the likelihood ratio statistic with the degrees of freedom and 
-the associated pvalue is returned.
+the associated pvalue is printed.
 }
+\value{ A matrix with information about Likelihood ratio tests degree of freedom and P values for the compared models.}
 \examples{data(madsen)
 y<-getnames(madsen)
 names<-c("Infl","Sat","Co","Ho")

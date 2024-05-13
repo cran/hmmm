@@ -19,13 +19,14 @@ The function `hmmm.mlfit' estimates either the parameters beta and the interacti
 (by `hmmm.mlfit') returns the estimated betas and the estimated interactions, while the function `print' provides the 
 estimated interactions only. If the model is defined under  equality constraints ECln(Mm)=0, parameters betas are meaningless so they are not printed. 
 
-The output of `summary' provides: 1. values of the likelihood ratio and
+The printed output of `summary' provides: 1. values of the likelihood ratio and
 Pearson's score statistics, degrees of freedom and pvalues. Note that degrees of freedom and pvalues are meaningful only for 
 the hmm models without inequality constraints (see `hmmm.chibar' to test hmm models defined under inequality constraints on interactions); 
 2. the linear predictor model results: estimated betas, standard errors, z-ratios, pvalues; estimated interactions, 
 standard errors, residuals; 3. cell-specific statistics: 
 observed and predicted frequencies of the multi-way table, estimated joint probabilities with standard errors, adjusted residuals; 
 4. convergence statistics.}
+\value{No return value}
 \note{Use `print' to display only the goodness-of-fit test and the estimated interactions.}
 \examples{
 data(relpol)

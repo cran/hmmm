@@ -7,7 +7,6 @@ mphineq.fit,
 recursive,
 marg.list,
 loglin.model,
-hidden.emfit,
 getnames,
 akaike,
 GMI,
@@ -18,11 +17,8 @@ S3method(summary,hmmmmod)
 S3method(print,hmmmfit)
 S3method(summary,hmmmfit)
 S3method(anova,hmmmfit)
-S3method(anova,hidden)
 S3method(print,hmmmchibar)
 S3method(summary,hmmmchibar)
-S3method(summary,hidden)
-S3method(print,hidden)
 S3method(print,mphfit)
 S3method(summary,mphfit)
 import(MASS)
@@ -35,3 +31,5 @@ importFrom("stats", "as.formula", "contr.treatment", "contrasts",
              "pnorm", "qchisq", "quantile", "rnorm", "runif", "terms",
              "uniroot", "xtabs")
 importFrom("utils", "combn")
+importFrom("methods", "is")
+importFrom("stats", "na.omit")

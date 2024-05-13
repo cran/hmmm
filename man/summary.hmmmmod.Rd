@@ -19,10 +19,11 @@ if \code{names} is not NULL. For every interaction, the logit type used for each
 in the interaction set and the number of parameters are indicated. 
 The last two columns give the position of the parameters in the vector
 where all the interactions are arranged.}
+\value{No return value}
 \note{Functions `summary' and `print' display the same output.}
 \seealso{\code{\link{hmmm.model}}}
 \examples{
 marginals<-marg.list(c("g-m","m-l","g-l"),mflag="m")
 model<-hmmm.model(marg=marginals,lev=c(3,7),names=c("A","B"))
-summary(model) # or print(model)}
+summary(model) }
 \keyword{package}

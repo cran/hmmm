@@ -52,6 +52,8 @@ by an equality-inequality constrained quadratic programming problem.
 The `mph.fit' step halving linear search is replaced by an optimal
 step length search performed by `optimize'. 
 }
+\value{An object of the class \code{mphineq}, an estimate of a Multinomial Homogeneous Poisson Model.
+  The output can be displayed using `summary' or `print'.}
 \references{Colombi R, Giordano S, Cazzaro M (2014) hmmm: An R Package for hierarchical multinomial marginal models. Journal of Statistical Software, 59(11), 1-25, URL http://www.jstatsoft.org/v59/i11/.
 
 Lang  JB (2004) Multinomial Poisson homogeneous models for contingency tables. The Annals of Statistics, 32, 340-383.
@@ -85,7 +87,7 @@ Gini<-function(m) {
  }
 
 
-# h_1 = c(G1,G2,G3)-c(0.410,0.455,0.684) = 0
+
 # HYPOTHESIS: no change in Gini concentrations
 # from the 1987-1989 observed values
 
@@ -95,7 +97,7 @@ print(mod_eq)
 
 # Example of MPH model subject to inequality constraints
 
-# d_1 = c(G1,G2,G3)-c(0.410,0.455,0.684) >= 0
+
 # HYPOTHESIS: increase in Gini concentrations
 # from the 1987-1989 observed values
 

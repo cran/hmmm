@@ -17,6 +17,7 @@ Pearson's Score Statistics, degrees of freedom and pvalues. Note that degrees of
 the mph models without inequality constraints; 
 2. cell-specific statistics: 
 observed and predicted frequencies of the multi-way table, estimated joint probabilities with standard errors, adjusted residuals.}
+\value{No return value}
 \note{
 Use `print' to display only the goodness-of-fit test.
 }
